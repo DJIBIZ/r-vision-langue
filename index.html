@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d1a">
+<title>مراجعة العربية</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{--bg:#0d0d1a;--surf:#161628;--gold:#d4a843;--golddim:#7a5e20;--teal:#0fb8a8;--teal2:#08e0cc;--purple:#8b5cf6;--rose:#f43f5e;--green:#22c55e;--text:#ede8da;--textdim:#7a7060;--textmed:#b0a890}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif}
+.pg{display:none;flex-direction:column;height:100%;overflow:hidden}.pg.on{display:flex}
+.scroll{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}.padbot{padding-bottom:80px}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surf);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.hdr-title{font-family:'Amiri',serif;font-size:19px;color:var(--gold)}
+.ibtn{background:rgba(255,255,255,.07);border:none;border-radius:10px;color:var(--text);font-size:17px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid rgba(255,255,255,.07);display:none;z-index:50;padding-bottom:env(safe-area-inset-bottom)}.bnav.on{display:flex}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0;background:none;border:none;color:var(--textdim);font-size:9px;cursor:pointer}.nbtn .ni{font-size:19px}.nbtn.on{color:var(--gold)}
+/* HOME */
+#pg-home{background:radial-gradient(ellipse at 50% -10%,#1e2d50 0%,var(--bg) 65%)}
+.home-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;gap:16px}
+.moon{font-size:50px;animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.home-ar{font-family:'Amiri',serif;font-size:42px;color:var(--gold);text-align:center}
+.home-sub{font-size:11px;color:var(--textdim);letter-spacing:.1em;text-transform:uppercase}
+.home-card{background:var(--surf);border:1px solid rgba(212,168,67,.18);border-radius:16px;padding:16px 20px;max-width:340px;width:100%;text-align:center}
+.home-card p{font-size:13px;line-height:1.8;color:var(--textmed)}
+.home-card .ar2{font-family:'Amiri',serif;font-size:20px;color:var(--gold);display:block;margin-top:6px}
+.stats-row{display:flex;gap:10px;max-width:340px;width:100%}
+.sbox{flex:1;background:var(--surf);border-radius:12px;padding:10px 8px;text-align:center}
+.sbox .sn{font-size:20px;font-weight:700;color:var(--gold)}.sbox .sl{font-size:10px;color:var(--textdim);margin-top:2px}
+.sync-badge{font-size:11px;padding:5px 14px;border-radius:50px;display:inline-block}
+.sync-ok{background:rgba(34,197,94,.1);color:var(--green)}.sync-off{background:rgba(244,63,94,.1);color:var(--rose)}
+.btn-start{background:linear-gradient(135deg,var(--gold),var(--golddim));color:#1a1000;font-weight:700;font-size:15px;border:none;border-radius:50px;padding:14px 48px;cursor:pointer}
+/* TABS (vocab/expressions) */
+.tab-bar{display:flex;background:var(--surf);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.tab-btn{flex:1;padding:12px;background:none;border:none;color:var(--textdim);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab-btn.on{color:var(--gold);border-bottom-color:var(--gold)}
+/* CATS */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.cat-card{background:var(--surf);border-radius:14px;padding:14px;cursor:pointer;border:2px solid rgba(255,255,255,.06);position:relative;transition:.15s}
+.cat-card.sel{border-color:var(--gold);background:#1e1c30}
+.cat-card-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--gold);display:none;align-items:center;justify-content:center;font-size:10px;color:#1a1000;font-weight:700}
+.cat-card.sel .cat-card-check{display:flex}
+/* BOOK NAVIGATION */
+.book-card{background:linear-gradient(145deg,#1e2d4a,#16213e);border:1px solid rgba(212,168,67,.25);border-radius:18px;padding:22px 18px;margin:14px;cursor:pointer;text-align:center;transition:.15s}
+.book-card:active{transform:scale(.98)}
+.book-icon{font-size:40px;margin-bottom:8px}
+.book-name{font-family:'Amiri',serif;font-size:22px;color:var(--gold)}
+.book-sub{font-size:11px;color:var(--textdim);margin-top:4px}
+.crumb-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;font-size:12px;color:var(--textdim);flex-wrap:wrap}
+.crumb-bar .crumb-link{color:var(--teal);cursor:pointer;text-decoration:underline}
+.bcat-list{padding:0 14px;display:flex;flex-direction:column;gap:10px}
+.bcat-item{background:var(--surf);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:.15s;position:relative}
+.bcat-item.locked{opacity:.5;cursor:not-allowed}
+.bcat-item:active:not(.locked){transform:scale(.98)}
+.bcat-row{display:flex;align-items:center;gap:12px}
+.bcat-icon{font-size:26px;flex-shrink:0}
+.bcat-info{flex:1}
+.bcat-title{font-size:14px;font-weight:600;color:var(--text)}
+.bcat-meta{font-size:11px;color:var(--textdim);margin-top:2px}
+.bcat-lock{font-size:18px;flex-shrink:0}
+.bcat-progress-wrap{margin-top:10px;background:rgba(255,255,255,.07);border-radius:4px;height:5px;overflow:hidden}
+.bcat-progress-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:4px;transition:width .4s}
+.bcat-badges{display:flex;gap:5px;margin-top:8px}
+.bcat-badge{font-size:9px;padding:3px 7px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--textdim)}
+.bcat-badge.done{background:rgba(34,197,94,.15);color:var(--green)}
+.sub-locked-msg{text-align:center;padding:30px 20px;color:var(--textdim);font-size:13px;line-height:1.8}
+.requirement-row{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:12px}
+.requirement-row.done{color:var(--green)}
+.requirement-row.pending{color:var(--textdim)}
+.cat-icon{font-size:26px;margin-bottom:6px}.cat-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}.cat-count{font-size:11px;color:var(--textdim)}
+.cat-edit-btn{position:absolute;bottom:8px;right:8px;background:none;border:none;font-size:13px;cursor:pointer;color:var(--purple);opacity:.7}
+.subcat-wrap{padding:0 14px 10px}
+.subcat-title{font-size:11px;color:var(--textdim);margin-bottom:6px}
+.subcat-row{display:flex;gap:8px;flex-wrap:wrap}
+.subpill{background:var(--surf);border:1.5px solid rgba(255,255,255,.08);border-radius:50px;color:var(--textdim);font-size:12px;padding:6px 14px;cursor:pointer;transition:.15s}
+.subpill.on{background:var(--teal);color:#001a18;border-color:var(--teal);font-weight:600}
+.sel-summary{margin:0 14px 10px;background:rgba(212,168,67,.08);border:1px solid rgba(212,168,67,.2);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--gold)}
+.cat-all-btn{margin:0 14px 10px;background:transparent;border:1.5px dashed rgba(212,168,67,.3);border-radius:12px;color:var(--gold);font-size:13px;padding:10px;cursor:pointer;width:calc(100% - 28px)}
+/* MODE SELECT */
+.mode-select{padding:14px;display:flex;flex-direction:column;gap:10px}
+.mode-opt{display:flex;align-items:center;gap:14px;background:var(--surf);border-radius:14px;padding:14px;cursor:pointer;border:1px solid rgba(255,255,255,.06)}
+.mode-opt .micon{font-size:26px;flex-shrink:0}.mode-opt .mtitle{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}.mode-opt .mdesc{font-size:12px;color:var(--textdim)}
+.mode-opt.learn{border-color:rgba(139,92,246,.3)}.mode-opt.quiz{border-color:rgba(15,184,168,.3)}.mode-opt.rev{border-color:rgba(212,168,67,.3)}.mode-opt.write{border-color:rgba(244,63,94,.3)}.mode-opt.ecriture{border-color:rgba(34,197,94,.3)}
+/* SESSION */
+.dir-bar{display:flex;gap:8px;padding:10px 14px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}.dir-bar::-webkit-scrollbar{display:none}
+.dpill{flex-shrink:0;background:var(--surf);border:1px solid rgba(255,255,255,.08);border-radius:50px;color:var(--textdim);font-size:12px;padding:6px 14px;cursor:pointer;white-space:nowrap}.dpill.on{background:var(--gold);color:#1a1000;font-weight:600}
+.progwrap{margin:0 14px 4px;background:rgba(255,255,255,.07);border-radius:4px;height:4px}.progbar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:4px;transition:width .4s}
+.proglbl{font-size:11px;color:var(--textdim);text-align:right;padding:3px 14px 8px}
+/* FLASHCARD */
+.scene{width:calc(100% - 28px);max-width:380px;height:220px;perspective:1000px;margin:0 auto 14px;cursor:pointer;flex-shrink:0}
+.inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}.inner.flip{transform:rotateY(180deg)}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px}
+.front{background:linear-gradient(145deg,#1e2d4a,#16213e);border:1px solid rgba(212,168,67,.22)}.back{background:linear-gradient(145deg,#0d2b28,#0a1f1d);border:1px solid rgba(15,184,168,.3);transform:rotateY(180deg)}
+.clbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--textdim);margin-bottom:10px}
+.cword{font-family:'Amiri',serif;font-size:38px;color:var(--gold);text-align:center;line-height:1.4;direction:rtl}.cword.lat{font-family:'Inter',sans-serif;font-size:24px;color:var(--text);direction:ltr}
+.ctrans{font-size:12px;color:var(--textdim);margin-top:5px;text-align:center;font-style:italic}.chint{font-size:11px;color:var(--textdim);margin-top:14px;opacity:.6}
+.cans{font-family:'Amiri',serif;font-size:34px;color:var(--teal2);text-align:center;line-height:1.4}.cans.lat{font-family:'Inter',sans-serif;font-size:22px;color:#5de0d4;direction:ltr}
+.speak-btn{background:rgba(255,255,255,.08);border:none;border-radius:50px;color:var(--gold);font-size:13px;padding:6px 14px;margin-top:10px;cursor:pointer}
+.card-acts{display:flex;gap:10px;padding:0 14px;flex-shrink:0}
+.abtn{flex:1;padding:12px 8px;border-radius:12px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+.abtn.reveal{background:var(--surf);color:var(--gold);border:1px solid rgba(212,168,67,.25)}.abtn.nxt{background:linear-gradient(135deg,var(--teal),#0a7a70);color:#fff}.abtn.knew{background:linear-gradient(135deg,var(--green),#168040);color:#fff}.abtn.didnt{background:linear-gradient(135deg,var(--rose),#a0112b);color:#fff}
+/* QUIZ */
+.quiz-q{background:var(--surf);border:1px solid rgba(212,168,67,.18);border-radius:18px;margin:0 14px 12px;padding:18px;text-align:center;flex-shrink:0}
+.quiz-qlbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--textdim);margin-bottom:8px}
+.quiz-qword{font-family:'Amiri',serif;font-size:36px;color:var(--gold);direction:rtl;line-height:1.4}.quiz-qword.lat{font-family:'Inter',sans-serif;font-size:24px;color:var(--text);direction:ltr}
+.quiz-qtrans{font-size:12px;color:var(--textdim);margin-top:4px;font-style:italic}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.choice{background:var(--surf);border:2px solid rgba(255,255,255,.08);border-radius:14px;padding:13px 10px;cursor:pointer;text-align:center;font-size:13px;color:var(--text)}.choice.ar-choice{font-family:'Amiri',serif;font-size:17px;direction:rtl}
+.choice.correct{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}.choice.wrong{background:rgba(244,63,94,.15);border-color:var(--rose);color:var(--rose)}.choice.reveal-correct{border-color:var(--green)}.choice.disabled{pointer-events:none}
+.quiz-result{text-align:center;padding:12px;flex-shrink:0;font-size:13px;color:var(--textmed)}
+/* END */
+.end-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;gap:14px;text-align:center}
+.end-trophy{font-size:60px}.end-title{font-family:'Amiri',serif;font-size:30px;color:var(--gold)}.end-score{font-size:44px;font-weight:700;color:var(--teal2)}.end-sub{font-size:14px;color:var(--textdim);line-height:1.7}
+.end-row{display:flex;gap:12px}.ebtn{padding:12px 24px;border-radius:50px;border:none;font-size:14px;font-weight:600;cursor:pointer}.ebtn.primary{background:linear-gradient(135deg,var(--gold),var(--golddim));color:#1a1000}.ebtn.sec{background:var(--surf);color:var(--textmed)}
+/* VOCAB LIST */
+.vsearch{width:calc(100% - 28px);margin:12px 14px 8px;background:var(--surf);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);font-size:14px;padding:11px 14px;outline:none}.vsearch::placeholder{color:var(--textdim)}
+.vadd-btn{margin:0 14px 10px;width:calc(100% - 28px);background:transparent;border:2px dashed rgba(212,168,67,.28);border-radius:12px;color:var(--gold);font-size:13px;padding:11px;cursor:pointer}
+.vlist{padding:0 14px}
+.vitem{display:flex;align-items:center;gap:8px;background:var(--surf);border-radius:12px;padding:11px 12px;margin-bottom:8px}
+.v-ar{font-family:'Amiri',serif;font-size:20px;color:var(--gold);direction:rtl;flex-shrink:0;min-width:75px;text-align:right}
+.v-trs{flex:1;min-width:0}.v-fr{font-size:13px;color:var(--text);font-weight:500}.v-en{font-size:13px;color:var(--text);font-weight:500}.v-cat{font-size:10px;color:var(--teal);background:rgba(15,184,168,.1);padding:2px 7px;border-radius:20px;display:inline-block;margin-top:3px}
+.v-btns{display:flex;gap:2px;flex-shrink:0}
+.v-btn{background:none;border:none;font-size:15px;cursor:pointer;padding:4px;opacity:.7}
+.v-btn.speak{color:var(--gold)}.v-btn.edit{color:var(--purple)}.v-btn.del{color:var(--rose)}
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;align-items:flex-end;justify-content:center}.overlay.on{display:flex}
+.mbox{background:#1e1e34;border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:20px 20px 38px;animation:sup .3s ease}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mtitle{font-size:16px;font-weight:600;color:var(--gold);margin-bottom:16px}
+.minput{width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:15px;padding:11px 14px;outline:none;margin-bottom:8px}.minput.ar-in{font-family:'Amiri',serif;font-size:18px;direction:rtl}
+.mselect{width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:14px;padding:11px 14px;outline:none;margin-bottom:8px}
+.mactions{display:flex;gap:8px;margin-top:4px}.mcancel{flex:1;padding:12px;border-radius:10px;background:var(--surf);border:none;color:var(--textdim);font-size:14px;cursor:pointer}.msave{flex:2;padding:12px;border-radius:10px;background:var(--gold);border:none;color:#1a1000;font-size:14px;font-weight:700;cursor:pointer}
+.cat-items{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:240px;overflow-y:auto}
+.cat-row{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;padding:10px 12px}.cat-row-name{flex:1;font-size:14px;color:var(--text)}
+.cr-btn{background:none;border:none;font-size:14px;cursor:pointer;padding:4px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#2a2a40;border:1px solid rgba(212,168,67,.3);color:var(--text);font-size:13px;padding:10px 20px;border-radius:50px;opacity:0;transition:.3s;z-index:300;pointer-events:none;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.card-pron-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.ptag{border-radius:14px;padding:8px 18px;font-family:"Amiri",serif;font-size:26px;direction:rtl;font-weight:700;line-height:1.5}
+.ptag.jama3{background:rgba(15,184,168,.18);color:var(--teal2);border:1px solid rgba(15,184,168,.3)}
+.ptag.aks{background:rgba(244,63,94,.15);color:#ff8099;border:1px solid rgba(244,63,94,.25)}
+.ptag-label{font-family:"Inter",sans-serif;font-size:11px;direction:ltr;color:var(--textmed);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:block;text-align:center;font-weight:600}
+.write-area{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px}
+.write-question{background:var(--surf);border:1px solid rgba(212,168,67,.22);border-radius:18px;padding:20px;width:100%;max-width:380px;text-align:center}
+.write-qlbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--textdim);margin-bottom:8px}
+.write-qword{font-family:"Amiri",serif;font-size:34px;color:var(--gold);direction:rtl;line-height:1.4}
+.write-qword.lat{font-family:"Inter",sans-serif;font-size:22px;direction:ltr;color:var(--text)}
+.write-qpron{font-size:12px;color:var(--textdim);margin-top:4px;font-style:italic}
+.write-input{width:100%;max-width:380px;background:var(--surf);border:2px solid rgba(255,255,255,.1);border-radius:14px;color:var(--text);font-family:"Amiri",serif;font-size:26px;padding:14px 16px;outline:none;text-align:center;direction:rtl}
+.write-input.lat{font-family:"Inter",sans-serif;font-size:18px;direction:ltr}
+.write-input:focus{border-color:var(--gold)}
+.write-input.good{border-color:var(--green);background:rgba(34,197,94,.08)}
+.write-input.bad{border-color:var(--rose);background:rgba(244,63,94,.08)}
+.write-correction{font-family:"Amiri",serif;font-size:18px;color:var(--green);direction:rtl;text-align:center;margin-top:4px;display:none}
+.write-acts{display:flex;gap:10px;width:100%;max-width:380px}
+.phase-info{text-align:center;padding:3px 14px 6px;font-size:11px;flex-shrink:0}
+.phase-memo{color:var(--purple)}.phase-write{color:var(--teal2)}.phase-quiz{color:var(--gold)}
+
+.adm-user-card{background:var(--surf);border-radius:12px;padding:14px;margin-bottom:8px;border:1px solid rgba(255,255,255,.06)}
+.adm-user-name{font-size:15px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.adm-user-meta{font-size:11px;color:var(--textdim);display:flex;gap:12px;flex-wrap:wrap}
+.adm-user-meta span{display:flex;align-items:center;gap:3px}
+.adm-sess-card{background:var(--surf);border-radius:10px;padding:12px 14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.adm-sess-left{flex:1}
+.adm-sess-name{font-size:13px;font-weight:600;color:var(--text)}
+.adm-sess-detail{font-size:11px;color:var(--textdim);margin-top:2px}
+.adm-sess-score{font-size:14px;font-weight:700;color:var(--teal2)}
+.adm-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(212,168,67,.12);color:var(--gold);margin-left:6px}
+.resume-banner{background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(15,184,168,.15));border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:14px 16px;max-width:340px;width:100%;text-align:center}
+.resume-title{font-size:14px;font-weight:600;color:var(--purple);margin-bottom:4px}
+.resume-sub{font-size:12px;color:var(--textdim);margin-bottom:12px}
+.resume-prog{background:rgba(255,255,255,.07);border-radius:4px;height:6px;margin-bottom:12px;overflow:hidden}
+.resume-prog-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:4px;transition:width .4s}
+.resume-btns{display:flex;gap:8px;justify-content:center}
+.rbtn{padding:8px 20px;border-radius:50px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+.rbtn.yes{background:var(--purple);color:#fff}
+.rbtn.no{background:var(--surf);color:var(--textdim)}
+.prog-section{max-width:340px;width:100%;margin-top:4px}
+.prog-cat-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.prog-cat-label{font-size:11px;color:var(--textdim);flex-shrink:0;width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-cat-bar-wrap{flex:1;background:rgba(255,255,255,.07);border-radius:4px;height:5px}
+.prog-cat-bar{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:4px;transition:width .6s}
+.prog-cat-pct{font-size:10px;color:var(--gold);width:32px;text-align:right;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="pg-home" class="pg on">
+  <div class="home-inner">
+    <div class="moon">🌙</div>
+    <div class="home-ar">مراجعة العربية</div>
+    <div class="home-sub">Révision Arabe · Arabic Review</div>
+    <div class="home-card"><p>Bienvenue ! Apprends l'arabe avec flashcards, quiz et catégories.</p><span class="ar2">أَهْلاً وَسَهْلاً</span></div>
+    <div class="stats-row">
+      <div class="sbox"><div class="sn" id="h-total">0</div><div class="sl">Mots</div></div>
+      <div class="sbox"><div class="sn" id="h-expr">0</div><div class="sl">Expressions</div></div>
+      <div class="sbox"><div class="sn" id="h-streak">0🔥</div><div class="sl">Série</div></div>
+    </div>
+    <div id="sync-badge" class="sync-badge sync-off">⏳ Connexion...</div>
+    <div id="daily-review-badge" style="display:none;max-width:340px;width:100%" onclick="startDailyReview()">
+      <div class="resume-banner" style="cursor:pointer;border-color:rgba(212,168,67,.4);background:linear-gradient(135deg,rgba(212,168,67,.15),rgba(15,184,168,.1))">
+        <div class="resume-title" style="color:var(--gold)">📅 Révision du jour</div>
+        <div class="resume-sub" id="daily-review-count">0 mot(s) à réviser</div>
+        <div id="daily-review-mandatory-note" style="display:none;font-size:10px;color:var(--rose);margin-bottom:6px">🔒 Obligatoire avant de continuer</div>
+        <button class="rbtn yes" style="background:var(--gold);color:#1a1000" onclick="event.stopPropagation();startDailyReview()">▶ Réviser maintenant</button>
+      </div>
+    </div>
+    <div id="resume-banner" style="display:none" class="resume-banner">
+      <div class="resume-title">⏸ Session en cours</div>
+      <div class="resume-sub" id="resume-desc">Révision · 0/0 cartes</div>
+      <div class="resume-prog"><div class="resume-prog-bar" id="resume-prog-bar" style="width:0%"></div></div>
+      <div class="resume-btns">
+        <button class="rbtn yes" onclick="resumeSession()">▶ Reprendre</button>
+        <button class="rbtn no" onclick="dismissResume()">✕ Abandonner</button>
+      </div>
+    </div>
+    <div class="prog-section" id="prog-section" style="display:none">
+      <div style="font-size:11px;color:var(--textdim);margin-bottom:6px;text-align:left">📊 Ma progression</div>
+      <div id="prog-cats"></div>
+    </div>
+    <button class="btn-start" onclick="goToCategoriesReset()">▶ Commencer</button>
+    <button style="background:none;border:none;color:var(--textdim);font-size:11px;cursor:pointer;margin-top:6px;text-decoration:underline" onclick="confirmSwitchAccount()">🔄 Changer de compte</button>
+  </div>
+</div>
+
+<!-- CATEGORIES + MODE SELECT -->
+<div id="pg-cats" class="pg">
+  <div class="hdr"><button class="ibtn" id="cats-back-btn" onclick="catsGoBack()">🏠</button><span class="hdr-title" id="cats-hdr-title">الكتب</span><button class="ibtn" onclick="openCatManager()">⚙️</button></div>
+  <div class="scroll padbot">
+    <div class="crumb-bar" id="crumb-bar" style="display:none"></div>
+
+    <!-- NIVEAU 0 : Liste des livres -->
+    <div id="view-books" style="display:none"></div>
+
+    <!-- NIVEAU 1 : Catégories du livre -->
+    <div id="view-bookcats" style="display:none" class="bcat-list"></div>
+
+    <!-- NIVEAU 2 : Sous-catégories -->
+    <div id="view-subcats" style="display:none" class="bcat-list"></div>
+
+    <!-- NIVEAU 3 : Mode select pour la sous-cat choisie (ou pour catégories génériques) -->
+    <div id="view-modeselect" style="display:none">
+      <div id="sel-summary" class="sel-summary" style="display:none"></div>
+      <div style="padding:0 14px 6px;font-size:11px;color:var(--textdim)">Parcours obligatoire (dans l'ordre)</div>
+      <div class="mode-select">
+        <div class="mode-opt learn" onclick="startMode('learn','mot')"><div class="micon">🧠</div><div><div class="mtitle">1. Apprendre — Vocabulaire</div><div class="mdesc">Toutes les cartes Ar→Fr et Fr→Ar</div></div></div>
+        <div class="mode-opt ecriture" onclick="startMode('write','mot')"><div class="micon">✏️</div><div><div class="mtitle">2. Exercice d'écriture</div><div class="mdesc">Tous les mots, dans les deux sens</div></div></div>
+        <div class="mode-opt quiz" onclick="startMode('quiz','all')"><div class="micon">❓</div><div><div class="mtitle">3. Quiz final</div><div class="mdesc">80% minimum pour débloquer la suite</div></div></div>
+        <div class="mode-opt learn" style="border-color:rgba(212,168,67,.3)" onclick="startMode('learn','expr')"><div class="micon">💬</div><div><div class="mtitle">Expressions (bonus)</div><div class="mdesc">Mémorisation des expressions</div></div></div>
+        <div class="mode-opt rev" onclick="startMode('revision','all')"><div class="micon">🃏</div><div><div class="mtitle">Révision libre</div><div class="mdesc">Cartes à retourner, à ton rythme</div></div></div>
+      </div>
+    </div>
+
+    <!-- LEGACY: catégories génériques restantes (hors livre) -->
+    <div id="view-legacy" style="display:none">
+      <div style="padding:12px 14px 4px;font-size:11px;color:var(--textdim)">Sélectionne une ou plusieurs catégories</div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div id="subcat-wrap" style="display:none" class="subcat-wrap">
+        <div class="subcat-title">Filtrer par sous-catégorie</div>
+        <div class="subcat-row" id="subcat-row"></div>
+      </div>
+      <div style="padding:0 14px 8px"><button class="cat-all-btn" onclick="clearSelAndStart()">🌐 Tout réviser (toutes catégories)</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div id="pg-session" class="pg">
+  <div class="hdr">
+    <button class="ibtn" onclick="quitSession()" title="Retour au menu">🏠</button>
+    <span class="hdr-title" id="sess-title">Révision</span>
+    <div style="display:flex;gap:6px">
+      <button class="ibtn" id="mute-btn" onclick="toggleMute()" title="Couper le son">🔊</button>
+      <button class="ibtn" onclick="speakCurrent()" title="Écouter">▶</button>
+    </div>
+  </div>
+  <div class="dir-bar">
+    <div class="dpill on" id="dp-ar-langs" onclick="toggleDir('ar-langs')">🇸🇦 → 🇫🇷+🇬🇧</div>
+    <div class="dpill" id="dp-langs-ar" onclick="toggleDir('langs-ar')">🇫🇷+🇬🇧 → 🇸🇦</div>
+    <div class="dpill" id="dp-mix" onclick="toggleDir('mix')">🔀 Mix</div>
+  </div>
+  <div class="progwrap"><div class="progbar" id="progbar" style="width:0%"></div></div>
+  <div class="proglbl" id="proglbl">1 / 1</div>
+  <div id="phase-banner" class="phase-info" style="display:none"></div>
+
+  <!-- FLASHCARD -->
+  <div id="flashcard-area" style="flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden">
+    <div class="scene" onclick="flipCard()">
+      <div class="inner" id="card-inner">
+        <div class="face front">
+          <div class="clbl" id="cf-lbl">Arabe</div>
+          <div class="cword" id="cf-word"></div>
+          <div class="ctrans" id="cf-trans"></div>
+          <div class="chint">Appuyer pour retourner</div>
+        </div>
+        <div class="face back">
+          <div class="clbl" id="cb-lbl">Français</div>
+          <div class="cans" id="cb-word"></div>
+          <div class="card-pron-row" id="cb-tags"></div>
+          <button class="speak-btn" onclick="event.stopPropagation();speakAnswer()">🔊 Écouter</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-acts" id="card-acts"></div>
+  </div>
+
+  <!-- ECRITURE -->
+  <div id="write-area" class="write-area">
+    <div class="write-question">
+      <div class="write-qlbl" id="wr-lbl">Écris en arabe</div>
+      <div class="write-qword" id="wr-word"></div>
+      <div class="write-qpron" id="wr-pron"></div>
+    </div>
+    <input class="write-input" id="wr-input" placeholder="اكتب هنا..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="write-correction" id="wr-correction"></div>
+    <div class="write-acts">
+      <button class="abtn reveal" id="wr-voir-btn" onclick="showWriteAnswer()">👁 Voir</button>
+      <button class="abtn nxt" id="wr-valid-btn" onclick="validateWrite()" style="flex:2">Valider ✓</button>
+      <button class="abtn nxt" id="wr-next-btn" onclick="nextCard()" style="display:none">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-area" style="display:none;flex-direction:column;overflow:hidden">
+    <div class="quiz-q"><div class="quiz-qlbl" id="qz-lbl"></div><div class="quiz-qword" id="qz-word"></div><div class="quiz-qtrans" id="qz-trans"></div><button class="speak-btn" style="margin:8px auto 0" onclick="speakQuiz()">🔊</button></div>
+    <div class="choices" id="choices"></div>
+    <div class="quiz-result" id="quiz-result"></div>
+  </div>
+
+  <!-- FIN -->
+  <div id="end-screen" style="display:none" class="end-screen">
+    <div class="end-trophy">🏆</div><div class="end-title" id="end-title">مَرْحَبًا ! Bravo !</div>
+    <div class="end-score" id="end-score"></div><div class="end-sub" id="end-sub"></div>
+    <div class="end-row">
+      <button class="ebtn sec" onclick="goToCategories()">← Catégories</button>
+      <button class="ebtn primary" onclick="restartSession()">🔄 Recommencer</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- VOCAB + EXPRESSIONS -->
+<div id="pg-vocab" class="pg">
+  <div class="hdr"><div style="width:36px"></div><span class="hdr-title" id="vocab-hdr-title">Vocabulaire</span><div style="width:36px"></div></div>
+  <div class="tab-bar">
+    <button class="tab-btn on" id="tab-mots" onclick="switchTab('mots')">📝 Mots</button>
+    <button class="tab-btn" id="tab-expr" onclick="switchTab('expr')">💬 Expressions</button>
+  </div>
+  <div class="scroll padbot">
+    <input class="vsearch" id="vsearch" type="text" placeholder="🔍 Rechercher..." oninput="renderVocab()">
+    <button class="vadd-btn" id="vadd-btn" onclick="openAddWord()">＋ Ajouter un mot</button>
+    <div class="vlist" id="vlist"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav" id="bnav">
+  <button class="nbtn on" id="nb-cats" onclick="goToCategoriesReset()"><span class="ni">🏠</span>Accueil</button>
+  <button class="nbtn" id="nb-vocab" onclick="goToVocab('mots')"><span class="ni">📝</span>Mots</button>
+  <button class="nbtn" id="nb-expr" onclick="goToVocab('expr')"><span class="ni">💬</span>Expressions</button>
+</nav>
+
+<!-- MODAL: ADD/EDIT WORD -->
+<div class="overlay" id="modal-word">
+  <div class="mbox">
+    <div class="mtitle" id="mw-title">➕ Nouveau mot</div>
+    <input type="hidden" id="w-id">
+    <input type="hidden" id="w-type" value="mot">
+    <input class="minput ar-in" id="w-ar" dir="rtl" placeholder="العربية مع الحَرَكات" type="text">
+    <input class="minput" id="w-fr" placeholder="🇫🇷 Français" type="text">
+    <input class="minput" id="w-en" placeholder="🇬🇧 English (optionnel)" type="text">
+    <input class="minput" id="w-pron" placeholder="Prononciation (ex: shukran)" type="text">
+    <select class="mselect" id="w-cat" onchange="populateSubcatSelect()"></select>
+    <select class="mselect" id="w-subcat"></select>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-word')">Annuler</button>
+      <button class="msave" id="w-save-btn" onclick="saveWord()">Enregistrer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CAT MANAGER -->
+<div class="overlay" id="modal-cats">
+  <div class="mbox">
+    <div class="mtitle">⚙️ Gérer les catégories</div>
+    <div class="cat-items" id="cat-items"></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input class="minput" id="new-cat-icon" placeholder="🏷️" type="text" style="margin:0;width:52px;text-align:center">
+      <input class="minput" id="new-cat-name" placeholder="Nom de la catégorie..." type="text" style="margin:0;flex:1">
+      <button class="msave" style="flex:0;padding:11px 14px" onclick="addCategory()">＋</button>
+    </div>
+    <button class="mcancel" style="width:100%;padding:12px;border-radius:10px" onclick="closeModal('modal-cats')">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL: EDIT CATEGORY -->
+<div class="overlay" id="modal-edit-cat">
+  <div class="mbox">
+    <div class="mtitle">✏️ Modifier la catégorie</div>
+    <input type="hidden" id="ec-id">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input class="minput" id="ec-icon" placeholder="🏷️" type="text" style="margin:0;width:52px;text-align:center">
+      <input class="minput" id="ec-name" placeholder="Nom..." type="text" style="margin:0;flex:1">
+    </div>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-edit-cat')">Annuler</button>
+      <button class="msave" onclick="saveCatEdit()">Mettre à jour ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CREATE BOOK (admin) -->
+<div class="overlay" id="modal-create-book">
+  <div class="mbox">
+    <div class="mtitle">📚 Nouveau livre</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input class="minput" id="nb-icon" placeholder="📕" type="text" style="margin:0;width:52px;text-align:center">
+      <input class="minput" id="nb-name" placeholder="Nom du livre..." type="text" style="margin:0;flex:1">
+    </div>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-create-book')">Annuler</button>
+      <button class="msave" onclick="createNewBook()">Créer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CREATE BOOK CATEGORY (admin) -->
+<div class="overlay" id="modal-create-bookcat">
+  <div class="mbox">
+    <div class="mtitle">📂 Nouvelle catégorie</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input class="minput" id="nbc-icon" placeholder="📘" type="text" style="margin:0;width:52px;text-align:center">
+      <input class="minput" id="nbc-name" placeholder="Nom de la catégorie..." type="text" style="margin:0;flex:1">
+    </div>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-create-bookcat')">Annuler</button>
+      <button class="msave" onclick="createNewBookCat()">Créer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CREATE BOOK SUBCAT (admin) -->
+<div class="overlay" id="modal-create-booksub">
+  <div class="mbox">
+    <div class="mtitle">📖 Nouvelle sous-catégorie</div>
+    <input class="minput" id="nbs-name" placeholder="Nom de la sous-catégorie..." type="text">
+    <div style="font-size:11px;color:var(--textdim);margin-bottom:8px">Cette sous-catégorie regroupera les mots que tu ajouteras avec la même catégorie/sous-catégorie technique ci-dessous (créée automatiquement).</div>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-create-booksub')">Annuler</button>
+      <button class="msave" onclick="createNewBookSub()">Créer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SUBCATS -->
+<div class="overlay" id="modal-subs">
+  <div class="mbox">
+    <div class="mtitle" id="sub-modal-title">Sous-catégories</div>
+    <div class="cat-items" id="sub-items"></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input class="minput" id="new-sub-name" placeholder="Nouvelle sous-catégorie..." type="text" style="margin:0;flex:1">
+      <button class="msave" style="flex:0;padding:11px 14px" onclick="addSubcat()">＋</button>
+    </div>
+    <button class="mcancel" style="width:100%;padding:12px;border-radius:10px" onclick="closeModal('modal-subs')">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// DATA
+// ══════════════════════════════════════
+// cat.id reste 'adiya' pour compat avec toutes les données existantes (cat:'adiya')
+// On ajoute un système de LIVRE par-dessus : chaque "sub" devient une categorie-niveau-2 dans un livre
+const DEFAULT_CATS=[
+  {id:'adiya',name:'الضِّيَاء',icon:'📗',subs:['الدرس الأول','الدرس الثاني','الدرس الثالث','تمهيدي أ - الدرس الأول','تمهيدي أ - الدرس الثاني','تمهيدي أ - الدرس الرابع','تمهيدي ب - الدرس الأول','تمهيدي ب - الدرس الثاني','تمهيدي ب - الدرس الثالث']}
+];
+
+// ── Structure du LIVRE الضياء : Catégorie > Sous-catégorie, avec ordre de déblocage ──
+// Chaque "groupe" correspond aux valeurs de w.sub dans les données vocab existantes
+const BOOK_STRUCTURE = {
+  id:'adiya', name:'الضِّيَاء', icon:'📗',
+  categories:[
+    {
+      id:'tamhidi_a', name:'تمهيدي أ', icon:'📘',
+      subs:[
+        {id:'ta_d1', name:'الدرس الأول', subKey:'tamhidi_a__الدرس الأول', matchCat:'tamhidi_a', matchSub:'الدرس الأول'},
+        {id:'ta_d2', name:'الدرس الثاني', subKey:'tamhidi_a__الدرس الثاني', matchCat:'tamhidi_a', matchSub:'الدرس الثاني'},
+        {id:'ta_d4', name:'الدرس الرابع', subKey:'tamhidi_a__الدرس الرابع', matchCat:'tamhidi_a', matchSub:'الدرس الرابع'},
+        {id:'ta_d5', name:'الدرس الخامس', subKey:'tamhidi_a__الدرس الخامس', matchCat:'tamhidi_a', matchSub:'الدرس الخامس'},
+        {id:'ta_d6', name:'الدرس السادس', subKey:'tamhidi_a__الدرس السادس', matchCat:'tamhidi_a', matchSub:'الدرس السادس'},
+        {id:'ta_d7', name:'الدرس السابع', subKey:'tamhidi_a__الدرس السابع', matchCat:'tamhidi_a', matchSub:'الدرس السابع'},
+        {id:'ta_d8', name:'الدرس الثامن', subKey:'tamhidi_a__الدرس الثامن', matchCat:'tamhidi_a', matchSub:'الدرس الثامن'},
+      ]
+    },
+    {
+      id:'tamhidi_b', name:'تمهيدي ب', icon:'📙',
+      subs:[
+        {id:'tb_d1', name:'الدرس الأول', subKey:'adiya__الدرس الأول', matchCat:'adiya', matchSub:'الدرس الأول'},
+        {id:'tb_d2', name:'الدرس الثاني', subKey:'adiya__الدرس الثاني', matchCat:'adiya', matchSub:'الدرس الثاني'},
+        {id:'tb_d3', name:'الدرس الثالث', subKey:'adiya__الدرس الثالث', matchCat:'adiya', matchSub:'الدرس الثالث'},
+        {id:'tb_d4', name:'الدرس الرابع', subKey:'adiya__الدرس الرابع', matchCat:'adiya', matchSub:'الدرس الرابع'},
+      ]
+    }
+  ]
+};
+
+// ── LIVRES DYNAMIQUES créés par l'admin (stockés dans Firebase collection "books") ──
+// Chaque livre dynamique a la même forme que BOOK_STRUCTURE : {id,name,icon,categories:[{id,name,icon,subs:[{id,name,subKey,matchCat,matchSub}]}]}
+let DYNAMIC_BOOKS = [];
+
+// BOOKS = liste de tous les livres (statique الضياء + dynamiques admin)
+function getAllBooks(){
+  return [BOOK_STRUCTURE, ...DYNAMIC_BOOKS];
+}
+
+async function loadDynamicBooks(){
+  if(!window._db) return;
+  try{
+    const {collection,getDocs} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDocs(collection(window._db,'books'));
+    DYNAMIC_BOOKS = snap.docs.map(d=>d.data());
+    if(navState.level==='books') renderBooksList();
+  }catch(e){ console.warn('loadDynamicBooks error', e); }
+}
+
+async function saveDynamicBook(book){
+  if(!window._db) { showToast('Connexion requise'); return; }
+  try{
+    const {doc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await setDoc(doc(window._db,'books',book.id), book);
+    await loadDynamicBooks();
+  }catch(e){ showToast('Erreur sauvegarde livre : '+e.message); }
+}
+
+async function deleteDynamicBook(bookId){
+  if(!window._db) return;
+  try{
+    const {doc,deleteDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await deleteDoc(doc(window._db,'books',bookId));
+    await loadDynamicBooks();
+  }catch(e){ showToast('Erreur suppression : '+e.message); }
+}
+
+// ── ADMIN : création de livre / catégorie / sous-catégorie ──
+function openCreateBookModal(){
+  document.getElementById('nb-icon').value='';
+  document.getElementById('nb-name').value='';
+  openModal('modal-create-book');
+}
+
+async function createNewBook(){
+  const name = document.getElementById('nb-name').value.trim();
+  const icon = document.getElementById('nb-icon').value.trim() || '📕';
+  if(!name){ showToast('Entre un nom de livre'); return; }
+  const id = 'book_' + Date.now();
+  const book = {id, name, icon, categories:[]};
+  await saveDynamicBook(book);
+  closeModal('modal-create-book');
+  showToast('📚 Livre créé !');
+  renderCatsView();
+}
+
+function openCreateBookCatModal(){
+  document.getElementById('nbc-icon').value='';
+  document.getElementById('nbc-name').value='';
+  openModal('modal-create-bookcat');
+}
+
+async function createNewBookCat(){
+  const name = document.getElementById('nbc-name').value.trim();
+  const icon = document.getElementById('nbc-icon').value.trim() || '📘';
+  if(!name){ showToast('Entre un nom de catégorie'); return; }
+  if(!activeBook || activeBook.id===BOOK_STRUCTURE.id){ showToast('Impossible de modifier le livre الضياء (protégé)'); return; }
+  const id = 'cat_' + Date.now();
+  activeBook.categories.push({id, name, icon, subs:[]});
+  await saveDynamicBook(activeBook);
+  // Re-pointe activeBook vers la version fraîche
+  activeBook = getAllBooks().find(b=>b.id===activeBook.id);
+  closeModal('modal-create-bookcat');
+  showToast('📂 Catégorie créée !');
+  renderCatsView();
+}
+
+function openCreateBookSubModal(){
+  document.getElementById('nbs-name').value='';
+  openModal('modal-create-booksub');
+}
+
+async function createNewBookSub(){
+  const name = document.getElementById('nbs-name').value.trim();
+  if(!name){ showToast('Entre un nom de sous-catégorie'); return; }
+  if(!activeBook || activeBook.id===BOOK_STRUCTURE.id){ showToast('Impossible de modifier le livre الضياء (protégé)'); return; }
+  if(!activeBookCat){ showToast('Aucune catégorie active'); return; }
+  const id = 'sub_' + Date.now();
+  const matchCat = activeBookCat.id; // utilise l'id de la catégorie comme cat technique du vocabulaire
+  const matchSub = name;
+  const subKey = matchCat + '__' + matchSub;
+  activeBookCat.subs.push({id, name, subKey, matchCat, matchSub});
+
+  // Assure aussi qu'une "catégorie" technique correspondante existe dans `cats` pour que l'ajout de mots fonctionne
+  const catExists = cats.find(c=>c.id===matchCat);
+  if(!catExists){
+    const newTechCat = {id:matchCat, name:activeBookCat.name, icon:activeBookCat.icon||'📘', subs:[matchSub]};
+    cats.push(newTechCat);
+    await syncSet('cats', matchCat, newTechCat);
+  } else if(!catExists.subs.includes(matchSub)){
+    catExists.subs.push(matchSub);
+    await syncSet('cats', matchCat, catExists);
+  }
+
+  await saveDynamicBook(activeBook);
+  activeBook = getAllBooks().find(b=>b.id===activeBook.id);
+  activeBookCat = activeBook.categories.find(c=>c.id===activeBookCat.id);
+  closeModal('modal-create-booksub');
+  showToast('📖 Sous-catégorie créée !');
+  renderCatsView();
+}
+const DEFAULT_VOCAB=[
+  {id:'w1',type:'mot',ar:'اَلسَّلَامُ عَلَيْكُمْ',fr:'Bonjour (paix sur vous)',en:'Peace be upon you',pron:'as-salāmu ʿalaykum',cat:'salut',sub:'Formelles'},
+  {id:'w2',type:'mot',ar:'شُكْرًا',fr:'Merci',en:'Thank you',pron:'shukran',cat:'commerce',sub:''},
+  {id:'w3',type:'mot',ar:'كَيْفَ حَالُكَ؟',fr:'Comment vas-tu ?',en:'How are you?',pron:'kayfa ḥāluk?',cat:'salut',sub:'Informelles'},
+  {id:'w4',type:'mot',ar:'نَعَمْ',fr:'Oui',en:'Yes',pron:'naʿam',cat:'salut',sub:''},
+  {id:'w5',type:'mot',ar:'لَا',fr:'Non',en:'No',pron:'lā',cat:'salut',sub:''},
+  {id:'w6',type:'mot',ar:'مِنْ فَضْلِكَ',fr:"S'il vous plaît",en:'Please',pron:'min fadlik',cat:'salut',sub:'Formelles'},
+  {id:'w7',type:'mot',ar:'مَعَ السَّلَامَةِ',fr:'Au revoir',en:'Goodbye',pron:"maʿa s-salāma",cat:'salut',sub:'Formelles'},
+  {id:'w8',type:'mot',ar:'مَطَار',fr:'Aéroport',en:'Airport',pron:'maṭār',cat:'voyage',sub:'Aéroport'},
+  {id:'w9',type:'mot',ar:'فُنْدُق',fr:'Hôtel',en:'Hotel',pron:'funduq',cat:'voyage',sub:'Hôtel'},
+  {id:'w10',type:'mot',ar:'كَمْ ثَمَنُهُ؟',fr:'Combien ça coûte ?',en:'How much is it?',pron:'kam thamanuh?',cat:'commerce',sub:'Marché'},
+  {id:'w11',type:'mot',ar:'اَللَّهُ أَكْبَرُ',fr:'Dieu est grand',en:'God is great',pron:'allāhu akbar',cat:'religion',sub:'Prière'},
+  {id:'w12',type:'mot',ar:'بِسْمِ اللَّهِ',fr:'Au nom de Dieu',en:'In the name of God',pron:'bismillāh',cat:'religion',sub:'Prière'},
+  {id:'w13',type:'mot',ar:'وَاحِد',fr:'Un',en:'One',pron:'wāḥid',cat:'nombres',sub:''},
+  {id:'w14',type:'mot',ar:'اِثْنَانِ',fr:'Deux',en:'Two',pron:'ithnān',cat:'nombres',sub:''},
+  {id:'w15',type:'mot',ar:'أَب',fr:'Père',en:'Father',pron:'ab',cat:'famille',sub:''},
+  {id:'w16',type:'mot',ar:'أُمّ',fr:'Mère',en:'Mother',pron:'umm',cat:'famille',sub:''},
+  {id:'e1',type:'expr',ar:'مَا شَاءَ اللَّهُ',fr:'Quelle merveille ! (Masha Allah)',en:'God has willed it',pron:'mā shāʾa llāh',cat:'religion',sub:''},
+  {id:'e2',type:'expr',ar:'إِنْ شَاءَ اللَّهُ',fr:'Si Dieu le veut (Insha Allah)',en:'God willing',pron:'in shāʾa llāh',cat:'religion',sub:''},
+  {id:'e3',type:'expr',ar:'أَيْنَ الْحَمَّامُ؟',fr:'Où sont les toilettes ?',en:'Where is the bathroom?',pron:'ayna l-ḥammām?',cat:'voyage',sub:'Hôtel'},
+  // ── الضياء · الدرس الأول · tableau 1 (page 14) ──
+  {id:'d1v1',type:'mot',ar:'قَضَى / يَقْضِي / اِقْضِ / قَضَاء',fr:'Exécuter, passer',en:'To execute, to spend (time)',pron:'qaḍā / yaqḍī / iqḍi / qaḍāʾ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v2',type:'mot',ar:'اِسْتَيْقَظَ / يَسْتَيْقِظُ / اِسْتَيْقِظْ / اِسْتِيقَاظ',fr:'Se réveiller',en:'To wake up',pron:'istayqaẓa / yastayqiẓu / istayqiẓ / istīqāẓ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v3',type:'mot',ar:'تَوَضَّأَ / يَتَوَضَّأُ / تَوَضَّأْ / تَوَضُّؤ',fr:'Faire ses ablutions',en:'To perform ablution',pron:'tawaḍḍaʾa / yatawaḍḍaʾu / tawaḍḍaʾ / tawaḍḍuʾ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v4',type:'mot',ar:'أَوْتَرَ / يُوتِرُ / أَوْتِرْ / إِيتَار',fr:'Faire le witr',en:'To perform witr prayer',pron:'awtara / yūtiru / awtir / ītār',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v5',type:'mot',ar:'صَلَّى / يُصَلِّي / صَلِّ / صَلَاة',fr:'Faire la prière',en:'To pray',pron:'ṣallā / yuṣallī / ṣalli / ṣalāh',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v6',type:'mot',ar:'ذَهَبَ / يَذْهَبُ / اِذْهَبْ / ذَهَاب',fr:'Aller, partir',en:'To go',pron:'ḏahaba / yaḏhabu / iḏhab / ḏahāb',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v7',type:'mot',ar:'أَدَّى / يُؤَدِّي / أَدِّ / تَأْدِيَة',fr:'Accomplir, s\'acquitter',en:'To accomplish, to perform',pron:'addā / yuʾaddī / addi / taʾdiya',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v8',type:'mot',ar:'جَلَسَ / يَجْلِسُ / اِجْلِسْ / جُلُوس',fr:'S\'asseoir',en:'To sit down',pron:'jalasa / yajlisu / ijlis / julūs',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v9',type:'mot',ar:'ذَكَرَ / يَذْكُرُ / اُذْكُرْ / ذِكْر',fr:'Mentionner, se souvenir',en:'To remember, to mention',pron:'ḏakara / yaḏkuru / uḏkur / ḏikr',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v10',type:'mot',ar:'تَلَا / يَتْلُو / اُتْلُ / تِلَاوَة',fr:'Réciter (le Coran)',en:'To recite (Quran)',pron:'talā / yatlū / utlu / tilāwa',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v11',type:'mot',ar:'عَادَ / يَعُودُ / عُدْ / عَوْدَة',fr:'Revenir, retourner',en:'To return',pron:'ʿāda / yaʿūdu / ʿud / ʿawda',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v12',type:'mot',ar:'تَنَاوَلَ / يَتَنَاوَلُ / تَنَاوَلْ / تَنَاوُل',fr:'Manger, prendre',en:'To eat, to take',pron:'tanāwala / yatanāwalu / tanāwal / tanāwul',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v13',type:'mot',ar:'اِسْتَعَدَّ / يَسْتَعِدُّ / اِسْتَعِدَّ / اِسْتِعْدَاد',fr:'Se préparer',en:'To prepare oneself',pron:'istaʿadda / yastaʿiddu / istaʿidda / istiʿdād',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v14',type:'mot',ar:'اِنْتَهَى / يَنْتَهِي / اِنْتَهِ / اِنْتِهَاء',fr:'Terminer, finir',en:'To end, to finish',pron:'intahā / yantahī / intahi / intihāʾ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v15',type:'mot',ar:'اِسْتَرَاحَ / يَسْتَرِيحُ / اِسْتَرِحْ / اِسْتِرَاحَة',fr:'Se reposer',en:'To rest',pron:'istarāḥa / yastarīḥu / istariḥ / istirāḥa',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v16',type:'mot',ar:'قَالَ / يَقِيلُ / قِلْ / قَيْلُولَة',fr:'Faire la sieste',en:'To take a nap',pron:'qāla / yaqīlu / qil / qaylūla',cat:'adiya',sub:'الدرس الأول'},
+  // ── الضياء · الدرس الأول · tableau 2 (page 15) ──
+  {id:'d1v17',type:'mot',ar:'ذَاكَرَ / يُذَاكِرُ / ذَاكِرْ / مُذَاكَرَة',fr:'Réviser, étudier',en:'To study, to revise',pron:'ḏākara / yuḏākiru / ḏākir / muḏākara',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v18',type:'mot',ar:'رَجَعَ / يَرْجِعُ / اِرْجِعْ / رُجُوع',fr:'Revenir, rentrer',en:'To come back',pron:'rajaʿa / yarjiʿu / irjiʿ / rujūʿ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v19',type:'mot',ar:'مَارَسَ / يُمَارِسُ / مَارِسْ / مُمَارَسَة',fr:'Pratiquer, répéter',en:'To practice',pron:'mārasa / yumārisu / māris / mumārasa',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v20',type:'mot',ar:'كَتَبَ / يَكْتُبُ / اُكْتُبْ / كِتَابَة',fr:'Écrire',en:'To write',pron:'kataba / yaktubu / uktub / kitāba',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v21',type:'mot',ar:'نَامَ / يَنَامُ / نَمْ / نَوْم',fr:'Dormir',en:'To sleep',pron:'nāma / yanāmu / nam / nawm',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v22',type:'mot',ar:'غَسَلَ / يَغْسِلُ / اِغْسِلْ / غَسْل',fr:'Laver',en:'To wash',pron:'ġasala / yaġsilu / iġsil / ġasl',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v23',type:'mot',ar:'زَارَ / يَزُورُ / زُرْ / زِيَارَة',fr:'Rendre visite, visiter',en:'To visit',pron:'zāra / yazūru / zur / ziyāra',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v24',type:'mot',ar:'خَرَجَ / يَخْرُجُ / اُخْرُجْ / خُرُوج',fr:'Sortir',en:'To go out',pron:'ḫaraja / yaḫruju / uḫruj / ḫurūj',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v25',type:'mot',ar:'اِغْتَسَلَ / يَغْتَسِلُ / اِغْتَسِلْ / اِغْتِسَال',fr:'Se laver (entièrement)',en:'To take a full bath',pron:'iġtasala / yaġtasilu / iġtasil / iġtisāl',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v26',type:'mot',ar:'لَبِسَ / يَلْبَسُ / اِلْبَسْ / لُبْس',fr:'S\'habiller, porter',en:'To wear, to dress',pron:'labisa / yalbasu / ilbas / libs',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v27',type:'mot',ar:'حَاوَلَ / يُحَاوِلُ / حَاوِلْ / مُحَاوَلَة',fr:'Essayer, s\'entraîner',en:'To try, to attempt',pron:'ḥāwala / yuḥāwilu / ḥāwil / muḥāwala',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v28',type:'mot',ar:'قَرَأَ / يَقْرَأُ / اِقْرَأْ / قِرَاءَة',fr:'Lire',en:'To read',pron:'qaraʾa / yaqraʾu / iqraʾ / qirāʾa',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v29',type:'mot',ar:'سَمِعَ / يَسْمَعُ / اِسْمَعْ / سَمْع',fr:'Entendre',en:'To hear',pron:'samiʿa / yasmaʿu / ismaʿ / samʿ',cat:'adiya',sub:'الدرس الأول'},
+  {id:'d1v30',type:'mot',ar:'اِسْتَمَعَ / يَسْتَمِعُ / اِسْتَمِعْ / اِسْتِمَاع',fr:'Écouter (attentivement)',en:'To listen',pron:'istamaʿa / yastamiʿu / istamiʿ / istimāʿ',cat:'adiya',sub:'الدرس الأول'},
+];
+
+let cats  = JSON.parse(localStorage.getItem('cats'))  || JSON.parse(JSON.stringify(DEFAULT_CATS));
+let vocab = JSON.parse(localStorage.getItem('vocab')) || JSON.parse(JSON.stringify(DEFAULT_VOCAB));
+let streak = parseInt(localStorage.getItem('streak')||'0');
+let currentEditCat = null;
+let currentTab = 'mots';
+let fbSet=null, fbDel=null;
+
+function saveLocal(){localStorage.setItem('cats',JSON.stringify(cats));localStorage.setItem('vocab',JSON.stringify(vocab));}
+function setSyncBadge(s){const b=document.getElementById('sync-badge');if(s==='ok'){b.className='sync-badge sync-ok';b.textContent='🟢 Synchronisé';}else{b.className='sync-badge sync-off';b.textContent='🔴 Hors ligne';}}
+
+// ── FIREBASE (async, non-blocking) ──
+window.addEventListener('load',async()=>{
+  try{
+    const {initializeApp}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js');
+    const {getFirestore,collection,doc,setDoc,deleteDoc,onSnapshot}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const app=initializeApp({apiKey:"AIzaSyDpeaWX9eA-uvSs0SJnjuGqHZVouQQGLmU",authDomain:"revision-langue.firebaseapp.com",projectId:"revision-langue",storageBucket:"revision-langue.firebasestorage.app",messagingSenderId:"36346332370",appId:"1:36346332370:web:68aa77494ca2795053d90b"});
+    const db=getFirestore(app);
+    fbSet=(col,id,data)=>setDoc(doc(db,col,id),data);
+    fbDel=(col,id)=>deleteDoc(doc(db,col,id));
+    window._db=db;
+    window._fbSet=fbSet;
+    window._firebaseApp=true;
+    const seed=async(col,defs)=>{const u=onSnapshot(collection(db,col),s=>{u();if(s.empty)defs.forEach(d=>fbSet(col,d.id,d));});};
+    seed('vocab',DEFAULT_VOCAB); seed('cats',DEFAULT_CATS);
+    onSnapshot(collection(db,'vocab'),s=>{const d=s.docs.map(x=>x.data());if(d.length>0){vocab=d;saveLocal();renderAll();}setSyncBadge('ok');});
+    onSnapshot(collection(db,'cats'),s=>{const d=s.docs.map(x=>x.data());if(d.length>0){cats=d;saveLocal();renderAll();}});
+  }catch(e){console.warn('Firebase offline',e);setSyncBadge('off');}
+});
+
+async function syncSet(col,id,data){saveLocal();if(fbSet)try{await fbSet(col,id,data);}catch(e){}}
+async function syncDel(col,id){saveLocal();if(fbDel)try{await fbDel(col,id);}catch(e){}}
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function showPg(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById('pg-'+id).classList.add('on');}
+function showHome(){document.getElementById('bnav').classList.remove('on');showPg('home');updateHomeStats();}
+
+// Bloque l'accès au contenu si la révision du jour est obligatoire et pas faite (sauf admin)
+function checkDailyReviewLock(){
+  if(isAdminUser()) return false;
+  if(!isSrsMandatoryForMe()) return false;
+  if(isDailyReviewDoneToday()) return false;
+  if(getDueCount()===0) return false; // rien à réviser = pas bloqué
+  showToast('🔒 Termine ta révision du jour avant de continuer !');
+  startDailyReview();
+  return true;
+}
+
+function goToCategories(){
+  if(checkDailyReviewLock()) return;
+  document.getElementById('bnav').classList.add('on');setNav('cats');showPg('cats');
+  // Si on revient d'une session liée à une sous-catégorie de livre, retourne à la liste des sous-cats
+  if(activeBookSub){
+    navState={level:'subcats'};
+  } else {
+    navState={level:'books'};
+  }
+  renderCatsView();
+}
+function goToCategoriesReset(){
+  if(checkDailyReviewLock()) return;
+  document.getElementById('bnav').classList.add('on');setNav('cats');showPg('cats');
+  activeBook=null;activeBookCat=null;activeBookSub=null;
+  navState={level:'books'};
+  renderCatsView();
+}
+function goToVocab(tab){
+  if(checkDailyReviewLock()) return;
+  tab=tab||currentTab;currentTab=tab;
+  document.getElementById('bnav').classList.add('on');
+  setNav(tab==='expr'?'expr':'vocab');
+  showPg('vocab');
+  switchTab(tab);
+}
+function setNav(id){document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));const el=document.getElementById('nb-'+id);if(el)el.classList.add('on');}
+function updateHomeStats(){
+  document.getElementById('h-total').textContent=vocab.filter(w=>w.type!=='expr').length;
+  document.getElementById('h-expr').textContent=vocab.filter(w=>w.type==='expr').length;
+  document.getElementById('h-streak').textContent=streak+'🔥';
+  renderProgressSection();
+  checkResumableSession();
+  updateDailyReviewBadge();
+}
+
+function updateDailyReviewBadge(){
+  const badge = document.getElementById('daily-review-badge');
+  if(!badge) return;
+  const count = getDueCount();
+  if(count===0 || isAdminUser()){ badge.style.display='none'; return; }
+  badge.style.display='block';
+  document.getElementById('daily-review-count').textContent = count+' mot'+(count>1?'s':'')+' à réviser aujourd\'hui';
+  const note = document.getElementById('daily-review-mandatory-note');
+  if(note) note.style.display = isSrsMandatoryForMe() ? 'block' : 'none';
+}
+function renderAll(){updateHomeStats();if(document.getElementById('pg-vocab').classList.contains('on'))renderVocab();if(document.getElementById('pg-cats').classList.contains('on'))renderCatsView();}
+
+// ══════════════════════════════════════
+// TABS
+// ══════════════════════════════════════
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tab-mots').classList.toggle('on',tab==='mots');
+  document.getElementById('tab-expr').classList.toggle('on',tab==='expr');
+  document.getElementById('vadd-btn').textContent=tab==='expr'?'＋ Ajouter une expression':'＋ Ajouter un mot';
+  document.getElementById('vocab-hdr-title').textContent=tab==='expr'?'Expressions':'Vocabulaire';
+  document.getElementById('vsearch').value='';
+  renderVocab();
+}
+
+// ══════════════════════════════════════
+// PROGRESSION / DÉBLOCAGE (par utilisateur, stocké local + sync Firebase)
+// ══════════════════════════════════════
+// Format: progress = { "tamhidi_a__الدرس الأول": {learnDone:bool, writeDone:bool, quizScore:number, quizDone:bool}, ... }
+let progress = JSON.parse(localStorage.getItem('progress')||'{}');
+
+function saveProgress(){
+  localStorage.setItem('progress', JSON.stringify(progress));
+  syncUserProgress();
+}
+
+async function syncUserProgress(){
+  if(!window._fbSet || !currentUser) return;
+  try{ await window._fbSet('progress', currentUser.id, {userId:currentUser.id,userName:currentUser.nom,data:progress,updatedAt:new Date().toISOString()}); }catch(e){}
+}
+
+function getSubProgress(subKey){
+  return progress[subKey] || {learnDone:false,writeDone:false,exprDone:false,quizScore:0,quizDone:false};
+}
+
+function setSubProgress(subKey, patch){
+  progress[subKey] = {...getSubProgress(subKey), ...patch};
+  saveProgress();
+}
+
+// Une sous-cat a-t-elle des expressions ? (si oui, exprDone devient obligatoire)
+function subHasExpressions(sub){
+  if(!sub || !sub.matchCat) return false;
+  return vocab.some(w=>w.cat===sub.matchCat && w.sub===sub.matchSub && w.type==='expr');
+}
+
+function isSubComplete(subKey){
+  const p = getSubProgress(subKey);
+  let sub = null;
+  for(const book of getAllBooks()){
+    sub = flatBookSubs(book).map(x=>x.sub).find(s=>s.subKey===subKey);
+    if(sub) break;
+  }
+  const needsExpr = subHasExpressions(sub);
+  return p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
+}
+
+// Renvoie la liste plate ordonnée de toutes les sous-catégories d'un livre donné (pour calcul séquentiel)
+function flatBookSubs(book){
+  book = book || activeBook || BOOK_STRUCTURE;
+  const flat=[];
+  book.categories.forEach(cat=>{
+    cat.subs.forEach(sub=>flat.push({cat,sub}));
+  });
+  return flat;
+}
+
+// Une sous-catégorie est débloquée si TOUTES les précédentes (ordre du livre) sont complètes.
+// Exception : l'admin (Gabriel) a toujours tout débloqué.
+// Un admin peut aussi forcer le déblocage/verrouillage manuel d'une sous-cat pour un élève (override dans progress[subKey].forceUnlock = true/false).
+function isAdminUser(){
+  return !!(currentUser && currentUser.nom && currentUser.nom.toLowerCase().includes('gabriel'));
+}
+
+function isSubUnlocked(subKey, book){
+  if(isAdminUser()) return true;
+  const p = getSubProgress(subKey);
+  if(p.forceUnlock===true) return true;
+  if(p.forceUnlock===false) return false;
+  const flat = flatBookSubs(book);
+  const idx = flat.findIndex(x=>x.sub.subKey===subKey);
+  if(idx<=0) return true;
+  for(let i=0;i<idx;i++){
+    if(!isSubComplete(flat[i].sub.subKey)) return false;
+  }
+  return true;
+}
+
+function isCatUnlocked(catId, book){
+  if(isAdminUser()) return true;
+  book = book || activeBook || BOOK_STRUCTURE;
+  const catIdx = book.categories.findIndex(c=>c.id===catId);
+  if(catIdx<=0) return true;
+  // Toutes les sous-cats de toutes les catégories précédentes doivent être complètes
+  for(let i=0;i<catIdx;i++){
+    const prevCat = book.categories[i];
+    for(const s of prevCat.subs){
+      if(!isSubComplete(s.subKey)) return false;
+    }
+  }
+  return true;
+}
+
+function catCompletionPct(cat){
+  if(!cat.subs.length) return 0;
+  const done = cat.subs.filter(s=>isSubComplete(s.subKey)).length;
+  return Math.round(done/cat.subs.length*100);
+}
+
+// ── ADMIN : forcer déblocage/verrouillage d'une sous-cat pour un utilisateur donné ──
+async function adminSetForceUnlock(targetUserId, subKey, value){
+  if(!window._db) { showToast('Connexion requise'); return; }
+  try{
+    const {getFirestore,doc,getDoc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const ref = doc(window._db,'progress',targetUserId);
+    const snap = await getDoc(ref);
+    const existing = snap.exists() ? (snap.data().data||{}) : {};
+    const subData = existing[subKey] || {learnDone:false,writeDone:false,quizDone:false,quizScore:0};
+    subData.forceUnlock = value;
+    existing[subKey] = subData;
+    await setDoc(ref, {userId:targetUserId, data:existing, updatedAt:new Date().toISOString()}, {merge:true});
+    showToast(value?'🔓 Débloqué !':'🔒 Reverrouillé');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+async function adminResetUserProgress(targetUserId, userName){
+  if(!confirm(`Réinitialiser TOUTE la progression de ${userName} ?`)) return;
+  try{
+    const {doc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await setDoc(doc(window._db,'progress',targetUserId), {userId:targetUserId, data:{}, updatedAt:new Date().toISOString()});
+    showToast('🔄 Progression réinitialisée');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+// ── ADMIN : valider ou refuser un nouveau compte ──
+async function adminApproveUser(targetUserId, userName){
+  if(!window._db) return;
+  try{
+    const {doc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await setDoc(doc(window._db,'users',targetUserId), {approved:true}, {merge:true});
+    showToast('✅ '+userName+' validé !');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+async function adminRejectUser(targetUserId, userName){
+  if(!confirm(`Refuser et supprimer la demande de ${userName} ?`)) return;
+  try{
+    const {doc,deleteDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await deleteDoc(doc(window._db,'users',targetUserId));
+    showToast('❌ Demande refusée');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+// ── ADMIN : afficher/masquer le code personnel d'un utilisateur ──
+function toggleUserCode(userId, code){
+  const el = document.getElementById('code-'+userId);
+  if(!el) return;
+  if(el.textContent === '••••'){
+    el.textContent = code;
+    el.style.color = 'var(--gold)';
+  } else {
+    el.textContent = '••••';
+    el.style.color = 'var(--textdim)';
+  }
+}
+
+// ── ADMIN : supprimer définitivement un compte utilisateur et ses données ──
+async function adminDeleteUser(targetUserId, userName){
+  if(!confirm(`Supprimer DÉFINITIVEMENT le compte de ${userName} ?\n\nSes sessions, sa progression et son SRS seront aussi effacés. Cette action est irréversible.`)) return;
+  try{
+    const {doc,deleteDoc,collection,getDocs} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    // Supprime le compte
+    await deleteDoc(doc(window._db,'users',targetUserId));
+    // Supprime sa progression et son SRS
+    await deleteDoc(doc(window._db,'progress',targetUserId)).catch(()=>{});
+    await deleteDoc(doc(window._db,'srs',targetUserId)).catch(()=>{});
+    // Supprime ses sessions
+    const sessSnap = await getDocs(collection(window._db,'sessions'));
+    const toDelete = sessSnap.docs.filter(d=>d.data().userId===targetUserId);
+    for(const d of toDelete){ await deleteDoc(doc(window._db,'sessions',d.id)); }
+    showToast('🗑 Compte de '+userName+' supprimé');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+// ══════════════════════════════════════
+// NAVIGATION CATEGORIES — Livre > Catégorie > Sous-catégorie
+// ══════════════════════════════════════
+let navState = {level:'books'}; // books | bookcats | subcats | modeselect | legacy
+let selCatIds=[], selSubcat=null; // legacy + utilisé aussi comme filtre final pour startMode
+let activeBook=null, activeBookCat=null, activeBookSub=null;
+
+function hideAllCatViews(){
+  ['view-books','view-bookcats','view-subcats','view-modeselect','view-legacy'].forEach(id=>{
+    document.getElementById(id).style.display='none';
+  });
+}
+
+function renderCrumb(){
+  const bar=document.getElementById('crumb-bar');
+  const parts=[];
+  parts.push(`<span class="crumb-link" onclick="catsGoBooks()">📚 الكتب</span>`);
+  if(activeBook) parts.push(`› <span class="crumb-link" onclick="catsGoBookCats()">${activeBook.icon} ${activeBook.name}</span>`);
+  if(activeBookCat) parts.push(`› <span class="crumb-link" onclick="catsGoSubcats()">${activeBookCat.icon} ${activeBookCat.name}</span>`);
+  if(activeBookSub) parts.push(`› ${activeBookSub.name}`);
+  if(navState.level==='books'){bar.style.display='none';return;}
+  bar.style.display='flex';
+  bar.innerHTML=parts.join(' ');
+}
+
+function renderCatsView(){
+  hideAllCatViews();
+  renderCrumb();
+  document.getElementById('cats-back-btn').textContent = navState.level==='books' ? '🏠' : '←';
+  document.getElementById('cats-back-btn').onclick = navState.level==='books' ? showHome : catsGoBack;
+
+  if(navState.level==='books'){
+    document.getElementById('cats-hdr-title').textContent='الكتب';
+    document.getElementById('view-books').style.display='block';
+    renderBooksList();
+  } else if(navState.level==='bookcats'){
+    document.getElementById('cats-hdr-title').textContent=activeBook.name;
+    document.getElementById('view-bookcats').style.display='flex';
+    renderBookCatsList();
+  } else if(navState.level==='subcats'){
+    document.getElementById('cats-hdr-title').textContent=activeBookCat.name;
+    document.getElementById('view-subcats').style.display='flex';
+    renderSubcatsList();
+  } else if(navState.level==='modeselect'){
+    document.getElementById('cats-hdr-title').textContent=activeBookSub?activeBookSub.name:'Mode';
+    document.getElementById('view-modeselect').style.display='block';
+    renderSelSummary();
+  } else if(navState.level==='legacy'){
+    document.getElementById('cats-hdr-title').textContent='Catégories';
+    document.getElementById('view-legacy').style.display='block';
+    renderCatGrid();
+  }
+}
+
+function renderBooksList(){
+  // Une catégorie technique (cats) est "legacy" seulement si elle n'est référencée par AUCUNE sous-catégorie d'AUCUN livre (statique ou dynamique)
+  const allMatchCats = new Set();
+  getAllBooks().forEach(book=>{
+    book.categories.forEach(cat=>{
+      cat.subs.forEach(sub=>{ if(sub.matchCat) allMatchCats.add(sub.matchCat); });
+    });
+  });
+  const hasLegacy = cats.some(c=>!allMatchCats.has(c.id));
+  let html = getAllBooks().map(book=>`
+    <div class="book-card" onclick="openBook('${book.id}')" style="position:relative">
+      <div class="book-icon">${book.icon}</div>
+      <div class="book-name">${book.name}</div>
+      <div class="book-sub">${book.categories.length} catégorie${book.categories.length>1?'s':''}</div>
+      ${isAdminUser() && book.id!==BOOK_STRUCTURE.id ? `<button class="cr-btn" style="position:absolute;top:8px;right:8px;color:var(--rose)" onclick="event.stopPropagation();confirmDeleteBook('${book.id}','${book.name}')">🗑</button>` : ''}
+    </div>`).join('');
+  if(hasLegacy){
+    html += `<div class="book-card" style="border-color:rgba(15,184,168,.3)" onclick="openLegacy()">
+      <div class="book-icon">📂</div>
+      <div class="book-name" style="font-size:18px">Autres catégories</div>
+      <div class="book-sub">Vocabulaire libre</div>
+    </div>`;
+  }
+  if(isAdminUser()){
+    html += `<div class="book-card" style="border:2px dashed rgba(212,168,67,.3);background:transparent" onclick="openCreateBookModal()">
+      <div class="book-icon">➕</div>
+      <div class="book-name" style="font-size:16px;color:var(--gold)">Nouveau livre</div>
+    </div>`;
+  }
+  document.getElementById('view-books').innerHTML = html;
+}
+
+function confirmDeleteBook(bookId, bookName){
+  if(confirm(`Supprimer le livre "${bookName}" ? (les catégories/sous-cat seront perdues, pas les mots déjà créés)`)){
+    deleteDynamicBook(bookId).then(()=>showToast('Livre supprimé'));
+  }
+}
+
+function openBook(bookId){
+  activeBook = getAllBooks().find(b=>b.id===bookId) || BOOK_STRUCTURE;
+  navState = {level:'bookcats'};
+  renderCatsView();
+}
+
+function openLegacy(){
+  navState = {level:'legacy'};
+  renderCatsView();
+}
+
+function catsGoBooks(){ activeBook=null;activeBookCat=null;activeBookSub=null; navState={level:'books'}; renderCatsView(); }
+function catsGoBookCats(){ activeBookCat=null;activeBookSub=null; navState={level:'bookcats'}; renderCatsView(); }
+function catsGoSubcats(){ activeBookSub=null; navState={level:'subcats'}; renderCatsView(); }
+
+function catsGoBack(){
+  if(navState.level==='modeselect'){
+    if(activeBookSub){ navState={level:'subcats'}; }
+    else { navState={level:'legacy'}; }
+  } else if(navState.level==='subcats'){ navState={level:'bookcats'}; }
+  else if(navState.level==='bookcats'){ navState={level:'books'}; }
+  else if(navState.level==='legacy'){ navState={level:'books'}; }
+  else { navState={level:'books'}; }
+  renderCatsView();
+}
+
+function renderBookCatsList(){
+  let html = activeBook.categories.map(cat=>{
+    const unlocked = isCatUnlocked(cat.id);
+    const pct = catCompletionPct(cat);
+    return `<div class="bcat-item${unlocked?'':' locked'}" onclick="${unlocked?`openBookCat('${cat.id}')`:`showLockedMsg('catégorie')`}">
+      <div class="bcat-row">
+        <div class="bcat-icon">${cat.icon}</div>
+        <div class="bcat-info">
+          <div class="bcat-title">${cat.name}</div>
+          <div class="bcat-meta">${cat.subs.length} sous-catégorie${cat.subs.length>1?'s':''} · ${pct}% complété</div>
+        </div>
+        <div class="bcat-lock">${unlocked?'›':'🔒'}</div>
+      </div>
+      <div class="bcat-progress-wrap"><div class="bcat-progress-bar" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  if(isAdminUser() && activeBook.id!==BOOK_STRUCTURE.id){
+    html += `<button class="cat-all-btn" style="border-color:rgba(212,168,67,.4)" onclick="openCreateBookCatModal()">➕ Ajouter une catégorie</button>`;
+  }
+  document.getElementById('view-bookcats').innerHTML = html;
+}
+
+function openBookCat(catId){
+  activeBookCat = activeBook.categories.find(c=>c.id===catId);
+  navState = {level:'subcats'};
+  renderCatsView();
+}
+
+function renderSubcatsList(){
+  let html = activeBookCat.subs.map(sub=>{
+    const unlocked = isSubUnlocked(sub.subKey);
+    const p = getSubProgress(sub.subKey);
+    const complete = isSubComplete(sub.subKey);
+    const n = vocab.filter(w=>w.cat===sub.matchCat && w.sub===sub.matchSub).length;
+    const hasExpr = subHasExpressions(sub);
+    return `<div class="bcat-item${unlocked?'':' locked'}" onclick="${unlocked?`openBookSub('${sub.id}')`:`showLockedMsg('sous-catégorie')`}">
+      <div class="bcat-row">
+        <div class="bcat-icon">${complete?'✅':'📖'}</div>
+        <div class="bcat-info">
+          <div class="bcat-title">${sub.name}</div>
+          <div class="bcat-meta">${n} élément${n>1?'s':''}</div>
+        </div>
+        <div class="bcat-lock">${unlocked?'›':'🔒'}</div>
+      </div>
+      <div class="bcat-badges">
+        <span class="bcat-badge ${p.learnDone?'done':''}">🧠 Appr.</span>
+        <span class="bcat-badge ${p.writeDone?'done':''}">✏️ Écriture</span>
+        ${hasExpr?`<span class="bcat-badge ${p.exprDone?'done':''}">💬 Expr.</span>`:''}
+        <span class="bcat-badge ${p.quizDone?'done':''}">❓ Quiz${p.quizScore?' '+p.quizScore+'%':''}</span>
+      </div>
+    </div>`;
+  }).join('');
+  if(isAdminUser() && activeBook.id!==BOOK_STRUCTURE.id){
+    html += `<button class="cat-all-btn" style="border-color:rgba(212,168,67,.4)" onclick="openCreateBookSubModal()">➕ Ajouter une sous-catégorie</button>`;
+  }
+  document.getElementById('view-subcats').innerHTML = html;
+}
+
+function openBookSub(subId){
+  activeBookSub = activeBookCat.subs.find(s=>s.id===subId);
+  selCatIds = [activeBookSub.matchCat];
+  selSubcat = activeBookSub.matchSub;
+  navState = {level:'modeselect'};
+  renderCatsView();
+}
+
+function showLockedMsg(type){
+  showToast('🔒 Termine le '+type+' précédent (Apprentissage + Écriture + Quiz 80%) pour débloquer !');
+}
+
+// ── LEGACY (catégories génériques hors livre) ──
+function renderCatGrid(){
+  const allMatchCats = new Set();
+  getAllBooks().forEach(book=>{
+    book.categories.forEach(cat=>{
+      cat.subs.forEach(sub=>{ if(sub.matchCat) allMatchCats.add(sub.matchCat); });
+    });
+  });
+  const legacyCats = cats.filter(c=>!allMatchCats.has(c.id));
+  document.getElementById('cat-grid').innerHTML=legacyCats.map(c=>{
+    const n=vocab.filter(w=>w.cat===c.id).length;
+    const sel=selCatIds.includes(c.id);
+    return `<div class="cat-card${sel?' sel':''}" onclick="toggleCat('${c.id}')">
+      <div class="cat-card-check">✓</div>
+      <div class="cat-icon">${c.icon||'📂'}</div>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-count">${n} élément${n>1?'s':''}</div>
+    </div>`;
+  }).join('');
+  renderSubcatRow();
+}
+
+function toggleCat(id){
+  const i=selCatIds.indexOf(id);
+  if(i===-1)selCatIds.push(id); else selCatIds.splice(i,1);
+  selSubcat=null;
+  renderCatGrid();
+}
+
+function renderSubcatRow(){
+  const wrap=document.getElementById('subcat-wrap');
+  const row=document.getElementById('subcat-row');
+  if(selCatIds.length!==1){wrap.style.display='none';row.innerHTML='';return;}
+  const cat=cats.find(c=>c.id===selCatIds[0]);
+  if(!cat||!cat.subs||!cat.subs.length){wrap.style.display='none';row.innerHTML='';return;}
+  wrap.style.display='block';
+  row.innerHTML=cat.subs.map(s=>`<div class="subpill${selSubcat===s?' on':''}" onclick="selectSub('${s}')">${s}</div>`).join('');
+}
+
+function selectSub(s){selSubcat=selSubcat===s?null:s;renderSubcatRow();}
+
+function renderSelSummary(){
+  const el=document.getElementById('sel-summary');
+  if(!selCatIds.length){el.style.display='none';return;}
+  const names=activeBookSub?activeBookSub.name:selCatIds.map(id=>cats.find(c=>c.id===id)?.name||id).join(', ');
+  const count=getDeck().length;
+  el.style.display='block';
+  el.innerHTML=`✅ Sélection : <strong>${names}</strong> — <strong>${count} carte${count>1?'s':''}</strong>`;
+}
+
+function clearSelAndStart(){selCatIds=[];selSubcat=null;navState={level:'modeselect'};renderCatsView();startMode('revision','all');}
+
+// ══════════════════════════════════════
+// SESSION
+// ══════════════════════════════════════
+// ── MASTERY (0=nouveau, 1=vu, 2=écrit, 3=maîtrisé) ──
+let mastery = JSON.parse(localStorage.getItem('mastery')||'{}');
+function getMastery(id){return mastery[id]||0;}
+function setMastery(id,val){mastery[id]=val;localStorage.setItem('mastery',JSON.stringify(mastery));}
+
+// ══════════════════════════════════════
+// RÉPÉTITION ESPACÉE (SRS) — type Anki simplifié
+// srs = { wordId: { nextReview: ISOString, intervalIdx: 0..N, lastResult: 'good'|'bad' } }
+// ══════════════════════════════════════
+const SRS_INTERVALS_DAYS = [1, 3, 7, 14, 30, 60]; // jours avant chaque prochaine révision
+let srs = JSON.parse(localStorage.getItem('srs')||'{}');
+
+function saveSrs(){
+  localStorage.setItem('srs', JSON.stringify(srs));
+  syncUserSrs();
+}
+
+async function syncUserSrs(){
+  if(!window._fbSet || !currentUser) return;
+  try{ await window._fbSet('srs', currentUser.id, {userId:currentUser.id, userName:currentUser.nom, data:srs, updatedAt:new Date().toISOString()}); }catch(e){}
+}
+
+async function loadUserSrsFromFirebase(){
+  if(!window._db || !currentUser) return;
+  try{
+    const {doc,getDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDoc(doc(window._db,'srs',currentUser.id));
+    if(snap.exists()){
+      srs = snap.data().data || {};
+      localStorage.setItem('srs', JSON.stringify(srs));
+    }
+  }catch(e){ console.warn('loadUserSrsFromFirebase error', e); }
+}
+
+// Appelé quand un mot est validé en quiz (succès ou échec) — programme la prochaine révision
+function scheduleReview(wordId, success){
+  const entry = srs[wordId] || {intervalIdx:-1};
+  if(success){
+    entry.intervalIdx = Math.min(entry.intervalIdx+1, SRS_INTERVALS_DAYS.length-1);
+    entry.lastResult = 'good';
+  } else {
+    entry.intervalIdx = 0; // échec → on revient au début (réviser demain)
+    entry.lastResult = 'bad';
+  }
+  const days = SRS_INTERVALS_DAYS[entry.intervalIdx];
+  const next = new Date();
+  next.setDate(next.getDate() + days);
+  entry.nextReview = next.toISOString();
+  entry.lastSeen = new Date().toISOString();
+  srs[wordId] = entry;
+  saveSrs();
+}
+
+// Renvoie tous les mots dont la révision est due aujourd'hui (ou en retard)
+function getDueWords(){
+  const now = new Date();
+  return vocab.filter(w=>{
+    const entry = srs[w.id];
+    if(!entry || !entry.nextReview) return false; // jamais programmé = pas encore dans le cycle SRS
+    return new Date(entry.nextReview) <= now;
+  });
+}
+
+function getDueCount(){
+  return getDueWords().length;
+}
+
+// L'admin peut forcer la révision obligatoire pour un utilisateur donné (stocké dans users/{id}.srsMandatory)
+function isSrsMandatoryForMe(){
+  return !!(currentUser && currentUser.srsMandatory === true);
+}
+
+async function adminSetSrsMandatory(targetUserId, value){
+  if(!window._db){ showToast('Connexion requise'); return; }
+  try{
+    const {doc,getDoc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const ref = doc(window._db,'users',targetUserId);
+    const snap = await getDoc(ref);
+    const existing = snap.exists() ? snap.data() : {};
+    await setDoc(ref, {...existing, srsMandatory:value}, {merge:true});
+    showToast(value?'🔒 Révision quotidienne rendue obligatoire':'💡 Révision quotidienne redevenue suggérée');
+    loadAdminData();
+  }catch(e){ showToast('Erreur : '+e.message); }
+}
+
+let sessMode='revision',sessDirs=['ar-langs'],sessDeck=[],sessIdx=0,sessPhase='memo',sessScore=0,isFlipped=false,quizAnswered=false;
+
+function getDeck(){
+  // Mode spécial : révision quotidienne SRS — deck = mots dus, toutes catégories confondues
+  if(sessMode==='daily_review'){
+    return getDueWords().sort(()=>Math.random()-.5);
+  }
+  let p=selCatIds.length?vocab.filter(w=>selCatIds.includes(w.cat)):[...vocab];
+  if(selSubcat)p=p.filter(w=>w.sub===selSubcat);
+  if(!p.length)p=[...vocab];
+  // Filtre vocabulaire ou expressions selon le mode choisi
+  if(sessFilter==='mot')  p=p.filter(w=>w.type!=='expr');
+  if(sessFilter==='expr') p=p.filter(w=>w.type==='expr');
+  // Pour apprentissage : exclure mots maîtrisés (niveau 3)
+  if(sessMode==='learn') p=p.filter(w=>getMastery(w.id)<3);
+
+  return p.sort(()=>Math.random()-.5);
+}
+
+function showArea(id){
+  ['flashcard-area','write-area','quiz-area','end-screen'].forEach(x=>{
+    const el=document.getElementById(x);
+    if(el){el.style.display=x===id?( x==='end-screen'?'flex': x==='write-area'?'flex':'flex'):'none';}
+  });
+  if(id==='write-area') document.getElementById('write-area').style.flexDirection='column';
+  if(id==='quiz-area') document.getElementById('quiz-area').style.flexDirection='column';
+}
+
+function setPhaseBanner(txt,cls){
+  const b=document.getElementById('phase-banner');
+  b.className='phase-info '+cls;
+  b.textContent=txt;
+  b.style.display=txt?'block':'none';
+}
+
+let sessFilter='all'; // 'all' | 'mot' | 'expr'
+
+function startDailyReview(){
+  selCatIds=[]; selSubcat=null;
+  sessMode='daily_review';
+  sessFilter='all';
+  sessDeck=getDeck(); sessIdx=0; sessScore=0; sessPhase='quiz'; isFlipped=false; quizAnswered=false;
+  if(!sessDeck.length){ showToast('🎉 Rien à réviser aujourd\'hui !'); return; }
+  document.getElementById('bnav').classList.remove('on'); showPg('session');
+  document.getElementById('sess-title').textContent='📅 Révision du jour';
+  sessDirs=['ar-langs'];
+  updateDirPills();
+  startSessionTracking('daily_review','all');
+  initMuteBtn();
+  setPhaseBanner(`📅 ${sessDeck.length} mot(s) à réviser aujourd'hui`,'phase-quiz');
+  showArea('quiz-area'); renderQuiz();
+  updateProg();
+}
+
+function startMode(mode, filter){
+  sessMode=mode;
+  sessFilter=filter||'all';
+  sessDeck=getDeck();sessIdx=0;sessScore=0;sessPhase='memo';isFlipped=false;quizAnswered=false;
+  if(!sessDeck.length){
+    if(mode==='learn'){showToast('🎉 Tous les mots sont maîtrisés !');return;}
+    sessDeck=getDeck();
+    if(!sessDeck.length){showToast('Aucun mot dans cette sélection !');return;}
+  }
+  document.getElementById('bnav').classList.remove('on');showPg('session');
+  const titles={learn:filter==='expr'?'Apprendre — Expressions':'Apprendre — Vocabulaire',write:'Exercice d\'écriture',quiz:'Quiz',revision:'Révision'};
+  document.getElementById('sess-title').textContent=titles[mode]||'Session';
+  // Ensure sessDirs uses new direction values
+  sessDirs=sessDirs.map(d=>['ar-fr','ar-en'].includes(d)?'ar-langs':['fr-ar','en-ar'].includes(d)?'langs-ar':d);
+  if(!sessDirs.length) sessDirs=['ar-langs'];
+  updateDirPills();
+  startSessionTracking(mode, filter);
+  initMuteBtn();
+  if(mode==='learn'){
+    sessPhase='memo';
+    setPhaseBanner('🧠 Phase 1 — Mémorise les cartes','phase-memo');
+    showArea('flashcard-area');renderFlashcard();
+  } else if(mode==='write'){
+    sessPhase='write';
+    setPhaseBanner('✏️ Exercice d\'écriture — Écris le mot demandé','phase-write');
+    sessDeck=sessDeck.map(w=>{w._written=false;return w;});
+    showArea('write-area');renderWrite();
+  } else if(mode==='quiz'){
+    setPhaseBanner('','');showArea('quiz-area');renderQuiz();
+  } else {
+    setPhaseBanner('','');showArea('flashcard-area');renderFlashcard();
+  }
+  updateProg();
+}
+
+function quitSession(){clearSessionState();goToCategories();}
+function restartSession(){mastery={};localStorage.setItem('mastery','{}');startMode(sessMode);}
+
+function toggleDir(d){
+  const idx=sessDirs.indexOf(d);
+  if(idx===-1){
+    sessDirs.push(d);
+  } else {
+    if(sessDirs.length===1){showToast('Au moins une direction !');return;}
+    sessDirs.splice(idx,1);
+  }
+  updateDirPills();
+  if(sessMode!=='quiz') renderFlashcard();
+  else{sessDeck=sessDeck.sort(()=>Math.random()-.5);sessIdx=0;renderQuiz();}
+}
+function updateDirPills(){
+  ['ar-langs','langs-ar','mix'].forEach(x=>{
+    const e=document.getElementById('dp-'+x);
+    if(e) e.classList.toggle('on', sessDirs.includes(x));
+  });
+}
+function eDir(i){
+  // Si la carte courante a une direction forcée (parcours Livre dupliqué), on la respecte
+  const dirs=sessDirs.map(d=>['ar-fr','ar-en'].includes(d)?'ar-langs':['fr-ar','en-ar'].includes(d)?'langs-ar':d);
+  if(dirs.length===1){
+    if(dirs[0]==='mix') return ['ar-langs','langs-ar'][i%2];
+    return dirs[0];
+  }
+  return dirs[i % dirs.length];
+}
+function setDir(d,force){
+  sessDirs=[(['ar-fr','ar-en','ar-langs'].includes(d))?'ar-langs':(['fr-ar','en-ar','langs-ar'].includes(d))?'langs-ar':'ar-langs'];
+  updateDirPills();
+  if(!force){if(sessMode!=='quiz')renderFlashcard();else{sessDeck=sessDeck.sort(()=>Math.random()-.5);sessIdx=0;renderQuiz();}}
+}
+
+// ── PARSE PRON TAGS (ج: ... — ع: ...) ──
+function parsePronTags(pron){
+  if(!pron) return {jama3:'',aks:'',other:''};
+  var parts = pron.split('—');
+  var jama3='', aks='', other='';
+  parts.forEach(function(p){
+    p = p.trim();
+    if(p.startsWith('ج:') || p.startsWith('ج ')) jama3 = p.replace(/^ج[: ]+/,'').trim();
+    else if(p.startsWith('ع:') || p.startsWith('ع ')) aks = p.replace(/^ع[: ]+/,'').trim();
+  });
+  if(!jama3 && !aks) other = pron;
+  return {jama3:jama3, aks:aks, other:other};
+}
+
+function renderFlashcard(){
+  if(sessIdx>=sessDeck.length){
+    if(sessMode==='learn'){
+      if(sessPhase==='memo'){
+        const notUnderstood=sessDeck.filter(w=>!w._understood);
+        if(notUnderstood.length>0){
+          sessDeck=notUnderstood.map(w=>{w._understood=undefined;return w;}).sort(()=>Math.random()-.5);
+          sessIdx=0;
+          showToast('⚠️ '+notUnderstood.length+' mot(s) à revoir !');
+          setPhaseBanner('🧠 Phase 1 — Encore '+notUnderstood.length+' mot(s) à mémoriser','phase-memo');
+          showArea('flashcard-area');renderFlashcard();return;
+        }
+        if(sessFilter==='expr'){showEnd();return;}
+        sessPhase='write';sessIdx=0;
+        sessDeck=sessDeck.sort(()=>Math.random()-.5).map(w=>{w._written=false;return w;});
+        setPhaseBanner('✏️ Phase 2 — Écris le mot demandé','phase-write');
+        showArea('write-area');renderWrite();return;
+      } else if(sessPhase==='write'){
+        const notWritten=sessDeck.filter(w=>!w._written);
+        if(notWritten.length>0){
+          sessDeck=notWritten.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
+          sessIdx=0;
+          showToast('⚠️ '+notWritten.length+' mot(s) à réécrire !');
+          setPhaseBanner('✏️ Phase 2 — Encore '+notWritten.length+' mot(s) à écrire','phase-write');
+          showArea('write-area');renderWrite();return;
+        }
+        sessPhase='quiz';sessIdx=0;
+        sessDeck=sessDeck.sort(()=>Math.random()-.5);
+        setPhaseBanner('❓ Phase 3 — Quiz final','phase-quiz');
+        showArea('quiz-area');renderQuiz();return;
+      }
+    } else if(sessMode==='write'){
+      const notWritten=sessDeck.filter(w=>!w._written);
+      if(notWritten.length>0){
+        sessDeck=notWritten.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
+        sessIdx=0;
+        showToast('⚠️ '+notWritten.length+' mot(s) à réécrire !');
+        setPhaseBanner('✏️ Encore '+notWritten.length+' mot(s) à écrire','phase-write');
+        showArea('write-area');renderWrite();return;
+      }
+      showEnd();return;
+    }
+    showEnd();return;
+  }
+  const w=sessDeck[sessIdx], dir=eDir(sessIdx);
+  isFlipped=false; document.getElementById('card-inner').classList.remove('flip');
+  const fw=document.getElementById('cf-word'),fl=document.getElementById('cf-lbl'),ft=document.getElementById('cf-trans');
+  const bw=document.getElementById('cb-word'),bl=document.getElementById('cb-lbl');
+
+  const isArFront = (dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
+
+  if(isArFront){
+    // Front : Arabe
+    fw.textContent=w.ar; fw.className='cword'; ft.textContent=w.pron?'('+parsePronTags(w.pron).other+')':''; fl.textContent='🇸🇦 Arabe';
+    // Back : FR + EN
+    bw.innerHTML=''; bl.textContent='Traduction';
+    bw.innerHTML=`<div style="font-size:20px;font-weight:600;color:var(--teal2);margin-bottom:6px">🇫🇷 ${w.fr}</div><div style="font-size:19px;font-weight:600;color:#5de0d4">🇬🇧 ${w.en||w.fr}</div>`;
+    bw.className='cans lat';
+  } else {
+    // Front : FR + EN
+    fw.innerHTML=''; ft.textContent=''; fl.textContent='Traduction';
+    fw.innerHTML=`<div style="font-size:20px;font-weight:600;margin-bottom:4px">🇫🇷 ${w.fr}</div><div style="font-size:19px;font-weight:600;color:var(--text)">🇬🇧 ${w.en||w.fr}</div>`;
+    fw.className='cword lat';
+    // Back : Arabe
+    bw.textContent=w.ar; bw.className='cans'; bl.textContent='🇸🇦 Arabe';
+  }
+
+  // Tags pluriel / contraire
+  const tags=document.getElementById('cb-tags');
+  const p=parsePronTags(w.pron);
+  let tagsHTML='';
+  if(p.jama3) tagsHTML+=`<div style="text-align:center"><span class="ptag-label">الجمع — Pluriel</span><div class="ptag jama3">${p.jama3}</div></div>`;
+  if(p.aks)   tagsHTML+=`<div style="text-align:center"><span class="ptag-label">العكس — Contraire</span><div class="ptag aks">${p.aks}</div></div>`;
+  tags.innerHTML=tagsHTML;
+
+  const a=document.getElementById('card-acts');
+  if(sessMode==='learn'&&sessPhase==='memo'){
+    a.innerHTML=`<button class="abtn reveal" onclick="flipCard()">👁 Voir</button><button class="abtn knew" onclick="markAndNext(1)">✓ Compris</button><button class="abtn didnt" onclick="markAndNext(0)">✗ Pas encore</button>`;
+  } else {
+    a.innerHTML=`<button class="abtn reveal" onclick="flipCard()">👁 Voir</button><button class="abtn nxt" onclick="nextCard()">Suivant →</button>`;
+  }
+  updateProg();
+}
+
+function markAndNext(knew){
+  const w=sessDeck[sessIdx];
+  if(knew){
+    setMastery(w.id,1);
+    w._understood=true;
+  } else {
+    w._understood=false;
+  }
+  nextCard();
+}
+
+function flipCard(){isFlipped=!isFlipped;document.getElementById('card-inner').classList.toggle('flip',isFlipped);if(isFlipped)speakAnswer();}
+
+function prevCard(){
+  if(sessIdx<=0){showToast('Première carte !');return;}
+  sessIdx--;
+  if(sessPhase==='write') renderWrite();
+  else renderFlashcard();
+}
+
+function nextCard(){
+  streak++;localStorage.setItem('streak',streak);
+  saveSessionState();
+  sessIdx++;
+  if(sessIdx>=sessDeck.length){
+    if(sessMode==='learn'){
+      if(sessPhase==='memo'){
+        // Vérifie si tous les mots sont compris
+        const notUnderstood = sessDeck.filter(w=>!w._understood);
+        if(notUnderstood.length>0){
+          // Refaire uniquement les mots non compris
+          sessDeck=notUnderstood.map(w=>{w._understood=undefined;return w;}).sort(()=>Math.random()-.5);
+          sessIdx=0;
+          showToast('⚠️ '+notUnderstood.length+' mot(s) à revoir !');
+          setPhaseBanner('🧠 Phase 1 — Encore '+notUnderstood.length+' mot(s) à mémoriser','phase-memo');
+          showArea('flashcard-area'); renderFlashcard(); return;
+        }
+        // Tous compris → Phase 2 (écriture) sauf si expressions
+        const hasExpr = sessFilter==='expr';
+        if(hasExpr){
+          // Expressions : pas d'écriture, pas de quiz → fin directement
+          showEnd(); return;
+        }
+        sessPhase='write'; sessIdx=0;
+        sessDeck=sessDeck.sort(()=>Math.random()-.5).map(w=>{w._written=false;return w;});
+        setPhaseBanner('✏️ Phase 2 — Écris le mot demandé','phase-write');
+        showArea('write-area'); renderWrite(); return;
+      } else if(sessPhase==='write'){
+        // Vérifie si tous les mots sont écrits correctement
+        const notWritten = sessDeck.filter(w=>!w._written);
+        if(notWritten.length>0){
+          sessDeck=notWritten.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
+          sessIdx=0;
+          showToast('⚠️ '+notWritten.length+' mot(s) à réécrire !');
+          setPhaseBanner('✏️ Phase 2 — Encore '+notWritten.length+' mot(s) à écrire','phase-write');
+          showArea('write-area'); renderWrite(); return;
+        }
+        // Tous écrits → Phase 3
+        sessPhase='quiz'; sessIdx=0;
+        sessDeck=sessDeck.sort(()=>Math.random()-.5);
+        setPhaseBanner('❓ Phase 3 — Quiz final','phase-quiz');
+        showArea('quiz-area'); renderQuiz(); return;
+      }
+    }
+    showEnd(); return;
+  }
+  if(sessPhase==='write') renderWrite();
+  else if(sessPhase==='quiz') renderQuiz();
+  else renderFlashcard();
+}
+
+function updateProg(){
+  const p=sessDeck.length?(sessIdx/sessDeck.length*100).toFixed(0):0;
+  document.getElementById('progbar').style.width=p+'%';
+  document.getElementById('proglbl').textContent=(sessIdx+1)+' / '+sessDeck.length;
+
+}
+
+// ── ÉCRITURE ──
+function renderWrite(){
+  if(sessIdx>=sessDeck.length){
+    // Fin du deck en phase écriture - géré par nextCard
+    showEnd(); return;
+  }
+  const w=sessDeck[sessIdx], dir=eDir(sessIdx);
+  const inp=document.getElementById('wr-input');
+  const corr=document.getElementById('wr-correction');
+  const nxt=document.getElementById('wr-next-btn');
+  inp.value=''; inp.className='write-input'; inp.disabled=false;
+  corr.style.display='none'; nxt.style.display='none';
+  const validBtn=document.getElementById('wr-valid-btn');
+  const voirBtn=document.getElementById('wr-voir-btn');
+  if(validBtn) validBtn.style.display='flex';
+  if(voirBtn) voirBtn.style.display='flex';
+  const qw=document.getElementById('wr-word');
+  const qpron=document.getElementById('wr-pron');
+  const qlbl=document.getElementById('wr-lbl');
+  const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
+  if(isArFront){
+    // Montre FR + EN, demande l'arabe
+    qw.innerHTML=`<div style="font-size:18px;font-weight:600;margin-bottom:4px">🇫🇷 ${w.fr}</div><div style="font-size:18px;font-weight:600;color:var(--text)">🇬🇧 ${w.en||w.fr}</div>`;
+    qw.className='write-qword lat';
+    qlbl.textContent='Écris en arabe 🇸🇦';
+    inp.className='write-input'; inp.dir='rtl';
+    inp.placeholder='اكتب هنا...';
+  } else {
+    // Montre l'arabe + prononciation, demande français ET anglais accepté
+    qw.innerHTML=`<div style="font-family:'Amiri',serif;font-size:34px;color:var(--gold);direction:rtl;line-height:1.4">${w.ar}</div>`;
+    qw.className='write-qword';
+    qlbl.textContent='Écris en français 🇫🇷 (ou anglais 🇬🇧)';
+    inp.className='write-input lat'; inp.dir='ltr';
+    inp.placeholder='Écris ici... (fr ou en)';
+  }
+  const p=parsePronTags(w.pron);
+  qpron.textContent=p.other||'';
+  inp.focus();
+  updateProg();
+}
+
+function validateWrite(){
+  const w=sessDeck[sessIdx], dir=eDir(sessIdx);
+  const inp=document.getElementById('wr-input');
+  const val=inp.value.trim();
+  if(!val){ showToast('Écris le mot d\'abord !'); return; }
+  const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
+  const target=isArFront?w.ar:w.fr;
+
+  // Normalise : ignore diacritiques arabes, minuscules, espaces, apostrophes variantes
+  const norm=s=>s
+    .replace(/[ً-ٰٟۖ-ۜ۟-۪ۤۧۨ-ۭ]/g,'')
+    .replace(/['''‘’ʼ]/g,"'")
+    .toLowerCase().trim();
+
+  // Génère toutes les formes acceptables depuis une chaîne
+  function getAccepted(str){
+    return str.split(/[\/,،]/).map(s=>{
+      return s.replace(/\(.*?\)/g,'').trim();
+    }).filter(s=>s.length>0).map(norm);
+  }
+
+  const acceptedFR = getAccepted(w.fr||'');
+  const acceptedEN = getAccepted(w.en||'');
+  const acceptedAR = getAccepted(w.ar||'');
+  const userNorm = norm(val);
+
+  // isArFront=true → montre FR+EN, l'utilisateur écrit l'ARABE
+  // isArFront=false → montre l'arabe, l'utilisateur écrit FR ou EN
+  let isCorrect = false;
+  if(isArFront){
+    isCorrect = acceptedAR.some(a=>a && userNorm===a);
+  } else {
+    isCorrect = [...acceptedFR, ...acceptedEN].some(a=>a && userNorm===a);
+  }
+
+  // Disable input and hide buttons
+  inp.disabled=true;
+  document.getElementById('wr-valid-btn').style.display='none';
+  document.getElementById('wr-voir-btn').style.display='none';
+  document.getElementById('wr-next-btn').style.display='flex';
+
+  const corr=document.getElementById('wr-correction');
+  // isArFront=true → montre FR+EN, réponse=arabe → correction montre l'arabe
+  // isArFront=false → montre arabe, réponse=FR/EN → correction montre FR+EN
+  if(isArFront){
+    corr.innerHTML=`<div style="font-family:'Amiri',serif;font-size:26px;direction:rtl">${w.ar}</div>`;
+    corr.className='write-correction';
+  } else {
+    corr.innerHTML=`<div style="font-size:18px;font-weight:600;margin-bottom:4px">🇫🇷 ${w.fr}</div><div style="font-size:18px;font-weight:600;opacity:.9">🇬🇧 ${w.en||w.fr}</div>`;
+    corr.className='write-correction lat';
+  }
+  corr.style.display='block';
+
+  if(isCorrect){
+    inp.className=(isArFront?'write-input':'write-input lat')+' good';
+    setMastery(w.id,2);
+    w._written=true;
+    speakCurrent();
+    showToast('✅ Correct !');
+  } else {
+    inp.className=(isArFront?'write-input':'write-input lat')+' bad';
+    showToast('❌ Incorrect');
+  }
+}
+
+function showWriteAnswer(){
+  const w=sessDeck[sessIdx], dir=eDir(sessIdx);
+  const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
+  const corr=document.getElementById('wr-correction');
+  if(isArFront){
+    // Montrait FR+EN → correction = arabe
+    corr.innerHTML=`<div style="font-family:'Amiri',serif;font-size:26px;direction:rtl">${w.ar}</div>`;
+    corr.className='write-correction';
+  } else {
+    // Montrait arabe → correction = FR + EN
+    corr.innerHTML=`<div style="font-size:18px;font-weight:600;margin-bottom:4px">🇫🇷 ${w.fr}</div><div style="font-size:18px;font-weight:600;opacity:.9">🇬🇧 ${w.en||w.fr}</div>`;
+    corr.className='write-correction lat';
+  }
+  corr.style.display='block';
+  document.getElementById('wr-input').className=(isArFront?'write-input':'write-input lat')+' bad';
+  document.getElementById('wr-input').disabled=true;
+  document.getElementById('wr-valid-btn').style.display='none';
+  document.getElementById('wr-voir-btn').style.display='none';
+  document.getElementById('wr-next-btn').style.display='flex';
+}
+
+// ── QUIZ ──
+function renderQuiz(){
+  if(sessIdx>=sessDeck.length){showEnd();return;}
+  quizAnswered=false;document.getElementById('quiz-result').textContent='';
+  const w=sessDeck[sessIdx],dir=eDir(sessIdx);
+  const qw=document.getElementById('qz-word'),qt=document.getElementById('qz-trans'),ql=document.getElementById('qz-lbl');
+  const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
+  if(isArFront){
+    qw.textContent=w.ar; qw.className='quiz-qword';
+    qt.textContent=w.pron?'('+parsePronTags(w.pron).other+')':'';
+    ql.textContent='🇸🇦 Arabe → 🇫🇷 Français';
+    // Choices = FR only for quiz
+    const correct=w.fr;
+    const pool=vocab.filter(v=>v.id!==w.id).sort(()=>Math.random()-.5).slice(0,3).map(v=>v.fr);
+    const opts=[...pool,correct].sort(()=>Math.random()-.5);
+    document.getElementById('choices').innerHTML=opts.map(o=>`<div class="choice" onclick="answerQuiz(this,'${o.replace(/'/g,"&#39;")}','${correct.replace(/'/g,"&#39;")}')">${o}</div>`).join('');
+  } else {
+    // Show FR + EN, ask for Arabic
+    qw.innerHTML=`<span style="font-size:20px;font-weight:600">🇫🇷 ${w.fr}</span><br><span style="font-size:19px;font-weight:600;color:var(--text)">🇬🇧 ${w.en||w.fr}</span>`;
+    qw.className='quiz-qword lat'; qt.textContent='';
+    ql.textContent='🇫🇷+🇬🇧 → 🇸🇦 Arabe';
+    const correct=w.ar;
+    const pool=vocab.filter(v=>v.id!==w.id).sort(()=>Math.random()-.5).slice(0,3).map(v=>v.ar);
+    const opts=[...pool,correct].sort(()=>Math.random()-.5);
+    document.getElementById('choices').innerHTML=opts.map(o=>`<div class="choice ar-choice" onclick="answerQuiz(this,'${o.replace(/'/g,"&#39;")}','${correct.replace(/'/g,"&#39;")}')">${o}</div>`).join('');
+  }
+  updateProg();
+}
+
+function answerQuiz(el,chosen,correct){
+  if(quizAnswered)return;quizAnswered=true;
+  document.querySelectorAll('.choice').forEach(c=>c.classList.add('disabled'));
+  const w=sessDeck[sessIdx];
+  if(chosen===correct){
+    el.classList.add('correct');sessScore++;
+    document.getElementById('quiz-result').textContent='✓ Correct !';
+    setMastery(w.id,3); // quiz réussi = maîtrisé niveau 3
+    scheduleReview(w.id, true);
+    speakCurrent();
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.choice').forEach(c=>{if(c.textContent===correct)c.classList.add('reveal-correct');});
+    document.getElementById('quiz-result').textContent='✗ Réponse : '+correct;
+    scheduleReview(w.id, false);
+  }
+  setTimeout(()=>{sessIdx++;if(sessIdx>=sessDeck.length)showEnd();else renderQuiz();},1400);
+}
+
+function showEnd(){
+  clearSessionState();
+  showArea('end-screen');
+  const hs=(sessMode==='quiz'||sessMode==='daily_review'||(sessMode==='learn'&&sessPhase==='quiz'));
+  let pct=0;
+  if(hs){
+    document.getElementById('end-score').textContent=sessScore+' / '+sessDeck.length;
+    pct=Math.round(sessScore/sessDeck.length*100);
+    document.getElementById('end-sub').textContent=pct>=80?'Excellent ! 🌟':pct>=50?'Bien joué ! 💪':'Réessaie ! 🔁';
+    endSessionTracking(sessScore, sessDeck.length);
+  } else {
+    document.getElementById('end-score').textContent=sessDeck.length+' cartes';
+    document.getElementById('end-sub').textContent='Révision terminée !';
+    endSessionTracking(0, sessDeck.length);
+  }
+  if(sessMode==='daily_review'){
+    document.getElementById('end-title').textContent = pct>=80 ? '📅 Révision réussie !' : '📅 Révision terminée';
+    markDailyReviewDoneToday();
+  }
+  markBookSubProgress(pct);
+}
+
+// Marque que la révision du jour a été faite (pour débloquer l'accès si obligatoire)
+function markDailyReviewDoneToday(){
+  const todayStr = new Date().toDateString();
+  localStorage.setItem('dailyReviewDoneDate', todayStr);
+}
+
+function isDailyReviewDoneToday(){
+  return localStorage.getItem('dailyReviewDoneDate') === new Date().toDateString();
+}
+
+// ── Marque la progression de la sous-cat active selon le mode terminé ──
+function markBookSubProgress(quizPct){
+  if(!activeBookSub) return; // seulement si on est dans le parcours Livre
+  const subKey = activeBookSub.subKey;
+  if(sessMode==='learn' && sessFilter==='mot'){
+    setSubProgress(subKey, {learnDone:true});
+  } else if(sessMode==='learn' && sessFilter==='expr'){
+    setSubProgress(subKey, {exprDone:true});
+  } else if(sessMode==='write'){
+    setSubProgress(subKey, {writeDone:true});
+  } else if(sessMode==='quiz'){
+    const passed = quizPct>=80;
+    setSubProgress(subKey, {quizDone:passed, quizScore:quizPct});
+    if(passed) showToast('🎉 Quiz réussi ! Sous-catégorie suivante débloquée');
+    else showToast('⚠️ 80% minimum requis pour débloquer la suite');
+  }
+}
+
+// ══════════════════════════════════════
+// SPEECH
+// ══════════════════════════════════════
+let isMuted = localStorage.getItem('muted')==='true';
+
+function toggleMute(){
+  isMuted=!isMuted;
+  localStorage.setItem('muted', isMuted);
+  const btn=document.getElementById('mute-btn');
+  if(btn) btn.textContent=isMuted?'🔇':'🔊';
+  if(isMuted && window.speechSynthesis) window.speechSynthesis.cancel();
+  showToast(isMuted?'🔇 Son coupé':'🔊 Son activé');
+}
+
+function initMuteBtn(){
+  const btn=document.getElementById('mute-btn');
+  if(btn) btn.textContent=isMuted?'🔇':'🔊';
+}
+
+function speak(t,l){
+  if(isMuted||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang=l||'ar-SA';u.rate=0.85;
+  window.speechSynthesis.speak(u);
+}
+function speakCurrent(){if(sessIdx<sessDeck.length)speak(sessDeck[sessIdx].ar,'ar-SA');}
+function speakAnswer(){if(sessIdx>=sessDeck.length)return;const w=sessDeck[sessIdx],dir=eDir(sessIdx);const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));if(isArFront){speak(w.fr,'fr-FR');}else{speak(w.ar,'ar-SA');}}
+function speakQuiz(){if(sessIdx>=sessDeck.length)return;const w=sessDeck[sessIdx],dir=eDir(sessIdx);const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));if(isArFront)speak(w.ar,'ar-SA');else speak(w.fr,'fr-FR');}
+function speakWordAr(ar){speak(ar,'ar-SA');}
+
+// ══════════════════════════════════════
+// VOCAB LIST
+// ══════════════════════════════════════
+function renderVocab(){
+  const q=(document.getElementById('vsearch').value||'').toLowerCase();
+  const filtered=vocab.filter(w=>{
+    if(currentTab==='expr'&&w.type!=='expr')return false;
+    if(currentTab==='mots'&&w.type==='expr')return false;
+    return!q||w.ar.includes(q)||w.fr.toLowerCase().includes(q)||(w.en&&w.en.toLowerCase().includes(q))||(w.pron&&w.pron.toLowerCase().includes(q));
+  });
+  const l=document.getElementById('vlist');
+  if(!filtered.length){l.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)">Aucun ${currentTab==='expr'?'expression':'mot'} trouvé.<br><br>Appuie sur ＋ pour en ajouter !</div>`;return;}
+  l.innerHTML=filtered.map(w=>{
+    const cat=cats.find(c=>c.id===w.cat);
+    const arSafe=w.ar.replace(/"/g,'&quot;');
+    return `<div class="vitem">
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:75px">
+        <div class="v-ar">${w.ar}</div>
+        ${w.pron?`<div style="font-size:10px;color:var(--textdim);text-align:right">${w.pron}</div>`:''}
+      </div>
+      <div class="v-trs">
+        <div class="v-fr">🇫🇷 ${w.fr}</div>
+        <div class="v-en">🇬🇧 ${w.en||''}</div>
+        ${cat?`<span class="v-cat">${cat.icon||'📂'} ${cat.name}${w.sub?' · '+w.sub:''}</span>`:''}
+      </div>
+      <div class="v-btns">
+        <button class="v-btn speak" onclick="speakWordAr(&quot;${arSafe}&quot;)">🔊</button>
+        <button class="v-btn edit" onclick="editWord('${w.id}')">✏️</button>
+        <button class="v-btn del" onclick="delWord('${w.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function delWord(id){
+  if(!confirm('Supprimer ?'))return;
+  vocab=vocab.filter(w=>w.id!==id);
+  renderVocab();updateHomeStats();
+  await syncDel('vocab',id);
+  showToast('Supprimé');
+}
+
+// ══════════════════════════════════════
+// ADD / EDIT WORD
+// ══════════════════════════════════════
+function openAddWord(){
+  document.getElementById('mw-title').textContent=currentTab==='expr'?'➕ Nouvelle expression':'➕ Nouveau mot';
+  document.getElementById('w-save-btn').textContent='Enregistrer ✓';
+  document.getElementById('w-id').value='';
+  document.getElementById('w-type').value=currentTab==='expr'?'expr':'mot';
+  document.getElementById('w-ar').value='';
+  document.getElementById('w-fr').value='';
+  document.getElementById('w-en').value='';
+  document.getElementById('w-pron').value='';
+  populateCatSelect();populateSubcatSelect();
+  openModal('modal-word');
+}
+
+function editWord(id){
+  const w=vocab.find(x=>x.id===id);if(!w)return;
+  document.getElementById('mw-title').textContent=w.type==='expr'?'✏️ Modifier l\'expression':'✏️ Modifier le mot';
+  document.getElementById('w-save-btn').textContent='Mettre à jour ✓';
+  document.getElementById('w-id').value=w.id;
+  document.getElementById('w-type').value=w.type||'mot';
+  document.getElementById('w-ar').value=w.ar||'';
+  document.getElementById('w-fr').value=w.fr||'';
+  document.getElementById('w-en').value=w.en||'';
+  document.getElementById('w-pron').value=w.pron||'';
+  populateCatSelect();
+  document.getElementById('w-cat').value=w.cat||'';
+  populateSubcatSelect();
+  document.getElementById('w-subcat').value=w.sub||'';
+  openModal('modal-word');
+}
+
+function populateCatSelect(){document.getElementById('w-cat').innerHTML=cats.map(c=>`<option value="${c.id}">${c.icon||'📂'} ${c.name}</option>`).join('');}
+function populateSubcatSelect(){const cat=cats.find(c=>c.id===document.getElementById('w-cat').value);const s=document.getElementById('w-subcat');if(!cat||!cat.subs||!cat.subs.length){s.innerHTML='<option value="">— Pas de sous-catégorie —</option>';}else{s.innerHTML='<option value="">— Aucune —</option>'+cat.subs.map(x=>`<option value="${x}">${x}</option>`).join('');}}
+
+async function saveWord(){
+  const ar=document.getElementById('w-ar').value.trim();
+  const fr=document.getElementById('w-fr').value.trim();
+  if(!ar||!fr){alert('Le mot en arabe et la traduction française sont obligatoires.');return;}
+  const existingId=document.getElementById('w-id').value;
+  const w={id:existingId||'w'+Date.now(),type:document.getElementById('w-type').value||'mot',ar,fr,en:document.getElementById('w-en').value.trim()||fr,pron:document.getElementById('w-pron').value.trim(),cat:document.getElementById('w-cat').value,sub:document.getElementById('w-subcat').value};
+  if(existingId){vocab=vocab.map(x=>x.id===existingId?w:x);showToast('Modifié ✓');}
+  else{vocab.push(w);showToast(w.type==='expr'?'Expression ajoutée ✓':'Mot ajouté ✓');}
+  closeModal('modal-word');renderVocab();updateHomeStats();
+  await syncSet('vocab',w.id,w);
+}
+
+// ══════════════════════════════════════
+// CATEGORIES MANAGER
+// ══════════════════════════════════════
+function openCatManager(){renderCatItems();openModal('modal-cats');}
+
+function renderCatItems(){
+  document.getElementById('cat-items').innerHTML=cats.map(c=>`
+    <div class="cat-row">
+      <span style="font-size:18px">${c.icon||'📂'}</span>
+      <span class="cat-row-name">${c.name}</span>
+      <button class="cr-btn" style="color:var(--teal)" onclick="openSubManager('${c.id}')">📂</button>
+      <button class="cr-btn" style="color:var(--purple)" onclick="openEditCat('${c.id}')">✏️</button>
+      <button class="cr-btn" style="color:var(--rose)" onclick="deleteCat('${c.id}')">🗑</button>
+    </div>`).join('');
+}
+
+async function addCategory(){
+  const name=document.getElementById('new-cat-name').value.trim();
+  if(!name)return;
+  const icon=document.getElementById('new-cat-icon').value.trim()||'📂';
+  const c={id:'cat'+Date.now(),name,icon,subs:[]};
+  cats.push(c);
+  renderCatItems();renderCatGrid();updateHomeStats();
+  document.getElementById('new-cat-name').value='';
+  document.getElementById('new-cat-icon').value='';
+  showToast('Catégorie ajoutée ✓');
+  await syncSet('cats',c.id,c);
+}
+
+function openEditCat(id){
+  const cat=cats.find(c=>c.id===id);if(!cat)return;
+  document.getElementById('ec-id').value=cat.id;
+  document.getElementById('ec-icon').value=cat.icon||'📂';
+  document.getElementById('ec-name').value=cat.name;
+  openModal('modal-edit-cat');
+}
+
+async function saveCatEdit(){
+  const id=document.getElementById('ec-id').value;
+  const cat=cats.find(c=>c.id===id);if(!cat)return;
+  cat.icon=document.getElementById('ec-icon').value.trim()||'📂';
+  cat.name=document.getElementById('ec-name').value.trim();
+  if(!cat.name)return;
+  closeModal('modal-edit-cat');
+  renderCatItems();renderCatGrid();
+  showToast('Catégorie modifiée ✓');
+  await syncSet('cats',cat.id,cat);
+}
+
+async function deleteCat(id){
+  if(!confirm('Supprimer cette catégorie ?'))return;
+  cats=cats.filter(c=>c.id!==id);
+  renderCatItems();renderCatGrid();
+  await syncDel('cats',id);
+  showToast('Supprimé');
+}
+
+function openSubManager(catId){
+  currentEditCat=catId;
+  const cat=cats.find(c=>c.id===catId);
+  document.getElementById('sub-modal-title').textContent='📂 Sous-cat. : '+cat.name;
+  renderSubItems();openModal('modal-subs');
+}
+function renderSubItems(){
+  const cat=cats.find(c=>c.id===currentEditCat);
+  document.getElementById('sub-items').innerHTML=(cat.subs||[]).map(s=>`
+    <div class="cat-row">
+      <span class="cat-row-name">${s}</span>
+      <button class="cr-btn" style="color:var(--rose)" onclick="deleteSub('${s}')">🗑</button>
+    </div>`).join('');
+}
+async function addSubcat(){
+  const name=document.getElementById('new-sub-name').value.trim();if(!name)return;
+  const cat=cats.find(c=>c.id===currentEditCat);
+  if(!cat.subs)cat.subs=[];
+  if(cat.subs.includes(name)){showToast('Déjà existant');return;}
+  cat.subs.push(name);
+  renderSubItems();renderCatGrid();
+  document.getElementById('new-sub-name').value='';
+  showToast('Sous-catégorie ajoutée ✓');
+  await syncSet('cats',cat.id,cat);
+}
+async function deleteSub(name){
+  const cat=cats.find(c=>c.id===currentEditCat);
+  cat.subs=cat.subs.filter(s=>s!==name);
+  renderSubItems();renderCatGrid();
+  await syncSet('cats',cat.id,cat);
+  showToast('Supprimé');
+}
+
+// ══════════════════════════════════════
+// MODALS + TOAST
+// ══════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on');}));
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+
+// ══════════════════════════════════════
+// SESSION SAVE & RESTORE
+// ══════════════════════════════════════
+function saveSessionState(){
+  if(!sessMode || !sessDeck.length) return;
+  const state = {
+    mode: sessMode,
+    filter: sessFilter,
+    dirs: sessDirs,
+    phase: sessPhase,
+    idx: sessIdx,
+    score: sessScore,
+    deckIds: sessDeck.map(w=>w.id),
+    catIds: selCatIds,
+    subcat: selSubcat,
+    savedAt: Date.now(),
+  };
+  localStorage.setItem('sessionState', JSON.stringify(state));
+}
+
+function clearSessionState(){
+  localStorage.removeItem('sessionState');
+}
+
+function checkResumableSession(){
+  const raw = localStorage.getItem('sessionState');
+  if(!raw) return;
+  try{
+    const state = JSON.parse(raw);
+    // Only offer resume if less than 24h old
+    if(Date.now() - state.savedAt > 86400000){ clearSessionState(); return; }
+    if(!state.deckIds || !state.deckIds.length) return;
+    // Show resume banner
+    const modeLabel = {learn:'Apprentissage',quiz:'Quiz',revision:'Révision'}[state.mode]||state.mode;
+    const filterLabel = state.filter==='expr'?'Expressions':state.filter==='mot'?'Vocabulaire':'Tout';
+    const pct = state.deckIds.length ? Math.round(state.idx/state.deckIds.length*100) : 0;
+    document.getElementById('resume-desc').textContent = `${modeLabel} · ${filterLabel} · ${state.idx}/${state.deckIds.length} cartes`;
+    document.getElementById('resume-prog-bar').style.width = pct+'%';
+    document.getElementById('resume-banner').style.display='block';
+  }catch(e){ clearSessionState(); }
+}
+
+function resumeSession(){
+  const raw = localStorage.getItem('sessionState');
+  if(!raw) return;
+  try{
+    const state = JSON.parse(raw);
+    // Restore selection
+    selCatIds = state.catIds || [];
+    selSubcat = state.subcat || null;
+    sessMode = state.mode;
+    sessFilter = state.filter || 'all';
+    sessDirs = state.dirs || ['ar-fr'];
+    sessPhase = state.phase || 'memo';
+    sessIdx = state.idx || 0;
+    sessScore = state.score || 0;
+    isFlipped = false; quizAnswered = false;
+    // Rebuild deck from saved IDs
+    const idMap = {};
+    vocab.forEach(w=>idMap[w.id]=w);
+    sessDeck = state.deckIds.map(id=>idMap[id]).filter(Boolean);
+    if(!sessDeck.length){ clearSessionState(); showToast('Session introuvable'); return; }
+    document.getElementById('resume-banner').style.display='none';
+    document.getElementById('bnav').classList.remove('on');
+    showPg('session');
+    document.getElementById('sess-title').textContent = {learn:'Apprentissage',quiz:'Quiz',revision:'Révision'}[sessMode]||sessMode;
+    updateDirPills();
+    if(sessPhase==='memo'||sessMode==='revision'){
+      setPhaseBanner(sessMode==='learn'?'🧠 Phase 1 — Mémorise les cartes':'','phase-memo');
+      showArea('flashcard-area'); renderFlashcard();
+    } else if(sessPhase==='write'){
+      setPhaseBanner('✏️ Phase 2 — Écris le mot demandé','phase-write');
+      showArea('write-area'); renderWrite();
+    } else if(sessPhase==='quiz'){
+      setPhaseBanner(sessMode==='learn'?'❓ Phase 3 — Quiz final':'','phase-quiz');
+      showArea('quiz-area'); renderQuiz();
+    }
+    updateProg();
+    showToast('Session reprise ! 👍');
+  }catch(e){ clearSessionState(); showToast('Erreur lors de la reprise'); }
+}
+
+function dismissResume(){
+  clearSessionState();
+  document.getElementById('resume-banner').style.display='none';
+}
+
+// ── PROGRESSION PAR CATÉGORIE ──
+function renderProgressSection(){
+  const masData = mastery;
+  const catProgress = {};
+  cats.forEach(c=>{
+    const words = vocab.filter(w=>w.cat===c.id);
+    if(!words.length) return;
+    const mastered = words.filter(w=>getMastery(w.id)>=3).length;
+    catProgress[c.id] = {name:c.name, icon:c.icon||'📂', total:words.length, mastered};
+  });
+  const entries = Object.values(catProgress).filter(e=>e.total>0);
+  if(!entries.length){ document.getElementById('prog-section').style.display='none'; return; }
+  document.getElementById('prog-section').style.display='block';
+  document.getElementById('prog-cats').innerHTML = entries.map(e=>{
+    const pct = Math.round(e.mastered/e.total*100);
+    return `<div class="prog-cat-row">
+      <div class="prog-cat-label">${e.icon} ${e.name}</div>
+      <div class="prog-cat-bar-wrap"><div class="prog-cat-bar" style="width:${pct}%"></div></div>
+      <div class="prog-cat-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// INIT
+updateHomeStats();
+
+// ══════════════════════════════════════
+// USER PROFILE & TRACKING
+// ══════════════════════════════════════
+const ADMIN_PWD = '4859';
+const ADMIN_NAME = 'Gabriel';
+let currentUser = JSON.parse(localStorage.getItem('userProfile') || 'null');
+let currentSessionId = null;
+let sessionStartTime = null;
+let sessionWordsCount = 0;
+let sessionScore = 0;
+
+// Check first launch
+function confirmSwitchAccount(){
+  const name = currentUser ? currentUser.nom.split(' ')[0] : '';
+  if(confirm(`Se déconnecter de ${name} et changer de compte sur cet appareil ?`)){
+    logoutCurrentUser();
+  }
+}
+
+// Déconnecte l'utilisateur actuel de CET appareil et ramène à l'écran de connexion.
+// Les données globales (vocab, cats, livres) restent intactes — seul le profil local est effacé.
+function logoutCurrentUser(){
+  localStorage.removeItem('userProfile');
+  localStorage.removeItem('progress');
+  localStorage.removeItem('srs');
+  localStorage.removeItem('mastery');
+  localStorage.removeItem('dailyReviewDoneDate');
+  currentUser = null;
+  progress = {};
+  srs = {};
+  mastery = {};
+  const adminBtn = document.getElementById('admin-btn');
+  if(adminBtn) adminBtn.remove();
+  document.getElementById('profile-nom').value='';
+  document.getElementById('profile-code').value='';
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('modal-profile').classList.add('on');
+}
+
+function checkFirstLaunch(){
+  loadDynamicBooks();
+  if(!currentUser){
+    document.getElementById('modal-profile').classList.add('on');
+  } else if(currentUser.approved !== true && !isAdminUser()){
+    showPendingApprovalScreen();
+    refreshCurrentUserFlags(); // vérifie en arrière-plan si déjà validé depuis
+  } else {
+    updateHomeStats();
+    loadUserProgressFromFirebase().then(()=>{ renderProgressSection(); });
+    loadUserSrsFromFirebase().then(()=>{ updateDailyReviewBadge(); });
+    refreshCurrentUserFlags();
+    // Add admin button if Gabriel
+    if(isAdminUser()){
+      addAdminButton();
+    }
+  }
+}
+
+// Récupère depuis Firebase les champs admin (ex: srsMandatory) qui peuvent avoir été modifiés depuis un autre appareil
+async function refreshCurrentUserFlags(){
+  if(!window._db || !currentUser) return;
+  try{
+    const {doc,getDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDoc(doc(window._db,'users',currentUser.id));
+    if(snap.exists()){
+      const data = snap.data();
+      const wasApproved = currentUser.approved;
+      currentUser.srsMandatory = data.srsMandatory === true;
+      currentUser.approved = data.approved === true || isAdminUser();
+      localStorage.setItem('userProfile', JSON.stringify(currentUser));
+      if(!wasApproved && currentUser.approved){
+        // Vient d'être validé pendant qu'on était sur l'écran d'attente
+        document.getElementById('pg-pending').classList.remove('on');
+        showPg('home');
+        await loadUserProgressFromFirebase();
+        await loadUserSrsFromFirebase();
+        updateHomeWelcome();
+        showToast('🎉 Ton compte a été validé !');
+      }
+      updateDailyReviewBadge();
+    }
+  }catch(e){ console.warn('refreshCurrentUserFlags error', e); }
+}
+
+function saveProfile(){
+  // Conservé pour compat, redirige vers le nouveau système
+  loginOrCreateProfile();
+}
+
+// Génère un ID stable à partir du nom + code (insensible à la casse/espaces)
+function makeUserKey(nom, code){
+  return (nom||'').trim().toLowerCase().replace(/\s+/g,'_') + '__' + (code||'').trim();
+}
+
+async function loginOrCreateProfile(){
+  const nom = document.getElementById('profile-nom').value.trim();
+  const code = document.getElementById('profile-code').value.trim();
+  const errEl = document.getElementById('profile-error');
+  errEl.style.display='none';
+
+  if(!nom){ showToast('Entre ton prénom !'); return; }
+  if(!/^\d{4}$/.test(code)){ showToast('Le code doit être 4 chiffres'); return; }
+
+  const userKey = makeUserKey(nom, code);
+  const isAdminName = nom.toLowerCase().includes('gabriel');
+
+  // Cherche si ce nom+code existe déjà dans Firebase
+  try{
+    if(window._db){
+      const {getFirestore,doc,getDoc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+      const ref = doc(window._db,'users',userKey);
+      const snap = await getDoc(ref);
+      if(snap.exists()){
+        // Compte existant → connexion
+        const existing = snap.data();
+        const approved = existing.approved === true || isAdminName;
+        currentUser = {
+          id: userKey,
+          nom: existing.nom || nom,
+          device: getDeviceInfo(),
+          firstSeen: existing.firstSeen || new Date().toISOString(),
+          srsMandatory: existing.srsMandatory === true,
+          approved,
+        };
+        localStorage.setItem('userProfile', JSON.stringify(currentUser));
+        await registerUser();
+        if(!approved){
+          showPendingApprovalScreen();
+          return;
+        }
+        await loadUserProgressFromFirebase();
+        await loadUserSrsFromFirebase();
+        closeModal('modal-profile');
+        document.getElementById('pg-pending').classList.remove('on');
+        updateHomeWelcome();
+        updateDailyReviewBadge();
+        if(isAdminUser()) addAdminButton();
+        showToast('👋 Bon retour, '+currentUser.nom.split(' ')[0]+' !');
+        return;
+      } else {
+        // Vérifie si le NOM existe déjà avec un AUTRE code (évite la confusion)
+        const allUsersSnap = await getDocsAllUsers();
+        const sameNameDiffCode = allUsersSnap.find(u => (u.nom||'').trim().toLowerCase()===nom.toLowerCase() && u.id!==userKey);
+        if(sameNameDiffCode){
+          errEl.textContent = '⚠️ Ce nom existe déjà avec un autre code. Vérifie ton code, ou choisis un nom légèrement différent.';
+          errEl.style.display='block';
+          return;
+        }
+      }
+    }
+  }catch(e){ console.warn('login check error', e); }
+
+  // Nouveau compte — en attente de validation (sauf admin, auto-approuvé)
+  currentUser = {
+    id: userKey,
+    nom,
+    device: getDeviceInfo(),
+    firstSeen: new Date().toISOString(),
+    approved: isAdminName,
+  };
+  localStorage.setItem('userProfile', JSON.stringify(currentUser));
+  registerUser();
+  if(!isAdminName){
+    closeModal('modal-profile');
+    showPendingApprovalScreen();
+    return;
+  }
+  closeModal('modal-profile');
+  updateHomeWelcome();
+  if(isAdminUser()) addAdminButton();
+  showToast('✅ Compte créé, bienvenue '+nom.split(' ')[0]+' !');
+}
+
+function showPendingApprovalScreen(){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-pending').classList.add('on');
+}
+
+// Vérifie périodiquement si l'admin a validé le compte
+async function checkApprovalStatus(){
+  if(!window._db || !currentUser) return;
+  try{
+    const {doc,getDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDoc(doc(window._db,'users',currentUser.id));
+    if(snap.exists() && snap.data().approved===true){
+      currentUser.approved = true;
+      localStorage.setItem('userProfile', JSON.stringify(currentUser));
+      document.getElementById('pg-pending').classList.remove('on');
+      showPg('home');
+      await loadUserProgressFromFirebase();
+      await loadUserSrsFromFirebase();
+      updateHomeWelcome();
+      updateDailyReviewBadge();
+      showToast('🎉 Ton compte a été validé !');
+    } else {
+      showToast('⏳ Toujours en attente de validation...');
+    }
+  }catch(e){ showToast('Erreur de connexion'); }
+}
+
+async function getDocsAllUsers(){
+  try{
+    const {collection,getDocs} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDocs(collection(window._db,'users'));
+    return snap.docs.map(d=>d.data());
+  }catch(e){ return []; }
+}
+
+// Charge la progression de l'utilisateur depuis Firebase (pour reconnexion sur un autre appareil)
+async function loadUserProgressFromFirebase(){
+  if(!window._db || !currentUser) return;
+  try{
+    const {doc,getDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const snap = await getDoc(doc(window._db,'progress',currentUser.id));
+    if(snap.exists()){
+      progress = snap.data().data || {};
+      localStorage.setItem('progress', JSON.stringify(progress));
+    }
+  }catch(e){ console.warn('loadUserProgressFromFirebase error', e); }
+}
+
+function getDeviceInfo(){
+  const ua = navigator.userAgent;
+  if(/iPhone/.test(ua)) return 'iPhone';
+  if(/iPad/.test(ua)) return 'iPad';
+  if(/Android/.test(ua)) return 'Android';
+  if(/Mac/.test(ua)) return 'Mac';
+  if(/Windows/.test(ua)) return 'Windows';
+  return 'Navigateur';
+}
+
+async function registerUser(){
+  if(!window._db || !currentUser) return;
+  try{
+    const {doc,setDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    await setDoc(doc(window._db,'users',currentUser.id), {
+      ...currentUser,
+      lastSeen: new Date().toISOString(),
+    }, {merge:true});
+  }catch(e){ console.warn('registerUser error', e); }
+}
+
+async function updateUserLastSeen(){
+  if(!window._fbSet || !currentUser) return;
+  try{
+    const {getFirestore,doc,updateDoc} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    // Use syncSet approach
+    await window._fbSet('users', currentUser.id, {
+      ...currentUser,
+      lastSeen: new Date().toISOString(),
+    });
+  }catch(e){}
+}
+
+function updateHomeWelcome(){
+  if(!currentUser) return;
+  const sub = document.querySelector('.home-sub');
+  if(sub) sub.textContent = 'Bonjour ' + currentUser.nom.split(' ')[0] + ' ! 👋';
+}
+
+function addAdminButton(){
+  const homeInner = document.querySelector('.home-inner');
+  if(!homeInner) return;
+  if(!document.getElementById('admin-btn')){
+    const btn = document.createElement('button');
+    btn.id = 'admin-btn';
+    btn.style.cssText = 'background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:50px;color:#a78bfa;font-size:12px;padding:7px 18px;cursor:pointer;margin-top:-8px';
+    btn.textContent = '📊 Tableau de bord admin';
+    btn.onclick = () => openModal('modal-admin-login');
+    homeInner.appendChild(btn);
+  }
+}
+
+// ── Export complet de l'état Firebase, directement intégré à l'app (toujours accessible) ──
+async function exportAppState(){
+  if(!window._db){ showToast('Connexion requise'); return; }
+  showToast('⏳ Export en cours...');
+  try{
+    const {collection,getDocs} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const [vocabSnap, catsSnap, booksSnap, usersSnap] = await Promise.all([
+      getDocs(collection(window._db,'vocab')),
+      getDocs(collection(window._db,'cats')),
+      getDocs(collection(window._db,'books')).catch(()=>({docs:[]})),
+      getDocs(collection(window._db,'users')).catch(()=>({docs:[]})),
+    ]);
+    const vocabData = vocabSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const catsData = catsSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const booksData = booksSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const usersData = usersSnap.docs.map(d=>({id:d.id, nom:d.data().nom}));
+
+    const exportObj = {
+      exportedAt: new Date().toISOString(),
+      cats: catsData, books: booksData, vocab: vocabData,
+      usersCount: usersData.length,
+      usersNames: usersData.map(u=>u.nom)
+    };
+    const jsonStr = JSON.stringify(exportObj, null, 1);
+    showExportModal(jsonStr);
+  }catch(e){
+    showToast('Erreur export : '+e.message);
+  }
+}
+
+function showExportModal(jsonStr){
+  let modal = document.getElementById('modal-export-state');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'modal-export-state';
+    modal.className = 'overlay';
+    modal.innerHTML = `<div class="mbox" style="max-height:80vh;display:flex;flex-direction:column">
+      <div class="mtitle">📤 État de l'application</div>
+      <div style="font-size:11px;color:var(--textdim);margin-bottom:10px">Copie ce texte et colle-le à Claude avant de demander des modifications.</div>
+      <textarea id="export-state-text" readonly style="flex:1;min-height:300px;background:var(--bg);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:var(--text);font-size:10px;font-family:monospace;padding:10px;margin-bottom:10px;resize:none"></textarea>
+      <div class="mactions">
+        <button class="mcancel" onclick="closeModal('modal-export-state')">Fermer</button>
+        <button class="msave" onclick="copyExportState()">📋 Copier</button>
+      </div>
+    </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('on'); });
+  }
+  document.getElementById('export-state-text').value = jsonStr;
+  modal.classList.add('on');
+}
+
+function copyExportState(){
+  const ta = document.getElementById('export-state-text');
+  ta.select();
+  try{
+    navigator.clipboard.writeText(ta.value).then(()=>showToast('✅ Copié !'));
+  }catch(e){
+    document.execCommand('copy');
+    showToast('✅ Copié !');
+  }
+}
+
+// ── SESSION TRACKING ──
+function startSessionTracking(mode, filter){
+  sessionStartTime = Date.now();
+  sessionWordsCount = 0;
+  sessionScore = 0;
+  currentSessionId = 'sess_' + Date.now();
+}
+
+async function endSessionTracking(finalScore, totalCards){
+  if(!currentUser || !currentSessionId || !sessionStartTime) return;
+  const duration = Math.round((Date.now() - sessionStartTime) / 1000);
+  const session = {
+    id: currentSessionId,
+    userId: currentUser.id,
+    userName: currentUser.nom,
+    userDevice: currentUser.device,
+    mode: sessMode,
+    filter: sessFilter,
+    dirs: sessDirs.join('+'),
+    totalCards,
+    score: finalScore,
+    duration,
+    date: new Date().toISOString(),
+    dateShort: new Date().toLocaleDateString('fr-FR'),
+  };
+  try{
+    if(window._fbSet) await window._fbSet('sessions', currentSessionId, session);
+  }catch(e){ console.warn('tracking error', e); }
+  await updateUserLastSeen();
+  currentSessionId = null;
+}
+
+// ── ADMIN ──
+function checkAdminLogin(){
+  const pwd = document.getElementById('admin-pwd').value;
+  if(pwd === ADMIN_PWD){
+    closeModal('modal-admin-login');
+    document.getElementById('admin-pwd').value = '';
+    openAdminPage();
+  } else {
+    showToast('❌ Mot de passe incorrect');
+    document.getElementById('admin-pwd').value = '';
+  }
+}
+
+function openAdminPage(){
+  document.getElementById('bnav').classList.remove('on');
+  showPg('admin');
+  loadAdminData();
+}
+
+function closeAdminPage(){
+  document.getElementById('bnav').classList.remove('on');
+}
+
+async function loadAdminData(){
+  if(!window._getDocs) return;
+  try{
+    const {getFirestore,collection,getDocs,query,orderBy,limit} = await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const db = window._db;
+
+    // Load users
+    const usersSnap = await getDocs(collection(db,'users'));
+    const allUsersRaw = usersSnap.docs.map(d=>d.data());
+    const pendingUsers = allUsersRaw.filter(u=>u.approved!==true && !(u.nom||'').toLowerCase().includes('gabriel'));
+    const users = allUsersRaw.filter(u=>u.approved===true || (u.nom||'').toLowerCase().includes('gabriel'));
+    document.getElementById('adm-users').textContent = users.length;
+
+    // Render pending accounts
+    const pendingList = document.getElementById('adm-pending-list');
+    if(pendingList){
+      pendingList.innerHTML = pendingUsers.map(u=>`
+        <div class="adm-user-card" style="border-color:rgba(212,168,67,.3)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="adm-user-name">⏳ ${u.nom} <span style="font-size:10px;color:var(--textdim)">${u.device||'?'}</span></div>
+            <div style="display:flex;gap:6px">
+              <button class="rbtn yes" style="padding:6px 14px;font-size:12px" onclick="adminApproveUser('${u.id}','${u.nom}')">✅ Valider</button>
+              <button class="rbtn no" style="padding:6px 14px;font-size:12px" onclick="adminRejectUser('${u.id}','${u.nom}')">❌ Refuser</button>
+            </div>
+          </div>
+        </div>`).join('') || '<div style="color:var(--textdim);font-size:13px;padding:8px 0 16px">Aucune demande en attente.</div>';
+    }
+
+    // Load sessions
+    const sessSnap = await getDocs(collection(db,'sessions'));
+    const sessions = sessSnap.docs.map(d=>d.data()).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    document.getElementById('adm-sessions').textContent = sessions.length;
+
+    // Today
+    const today = new Date().toLocaleDateString('fr-FR');
+    const todaySess = sessions.filter(s=>s.dateShort===today);
+    document.getElementById('adm-today').textContent = todaySess.length;
+
+    // Render users — detailed
+    const userList = document.getElementById('adm-user-list');
+    userList.innerHTML = users.sort((a,b)=>new Date(b.lastSeen||0)-new Date(a.lastSeen||0)).map(u=>{
+      const userSess = sessions.filter(s=>s.userId===u.id);
+      const lastSeen = u.lastSeen ? new Date(u.lastSeen).toLocaleString('fr-FR') : '—';
+      const firstSeen = u.firstSeen ? new Date(u.firstSeen).toLocaleDateString('fr-FR') : '—';
+      const quizSess = userSess.filter(s=>s.mode==='quiz'&&s.totalCards>0);
+      const avgScore = quizSess.length ? Math.round(quizSess.reduce((a,s)=>a+s.score/s.totalCards*100,0)/quizSess.length) : null;
+      const totalTime = userSess.reduce((a,s)=>a+(s.duration||0),0);
+      const timeStr = totalTime>3600?Math.round(totalTime/3600)+'h':totalTime>60?Math.round(totalTime/60)+'min':totalTime+'s';
+      const todaySess = userSess.filter(s=>s.dateShort===new Date().toLocaleDateString('fr-FR'));
+      const modes = {};
+      userSess.forEach(s=>{modes[s.mode]=(modes[s.mode]||0)+1;});
+      const modeStr = Object.entries(modes).map(([m,n])=>({learn:'Apprent.',write:'Écriture',quiz:'Quiz',revision:'Révision'}[m]||m)+' x'+n).join(' · ');
+      const isOnline = u.lastSeen && (Date.now()-new Date(u.lastSeen).getTime())<300000;
+      return `<div class="adm-user-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div class="adm-user-name">
+              ${isOnline?'🟢':'⚫'} ${u.nom}
+              <span class="adm-badge">${u.niveau||'?'}</span>
+              <span class="adm-badge" style="background:rgba(15,184,168,.12);color:var(--teal)">${u.device||'?'}</span>
+            </div>
+            <div style="font-size:10px;color:var(--textdim);margin-top:2px">Inscrit le ${firstSeen}</div>
+          </div>
+          ${avgScore!==null?`<div style="font-size:22px;font-weight:700;color:var(--gold)">${avgScore}%</div>`:''}
+        </div>
+        <div class="adm-user-meta">
+          <span>📚 ${userSess.length} session${userSess.length>1?'s':''}</span>
+          <span>⏱ ${timeStr} total</span>
+          <span>📅 ${todaySess.length} aujourd'hui</span>
+          <span>🕐 ${lastSeen}</span>
+        </div>
+        ${modeStr?`<div style="font-size:10px;color:var(--teal);margin-top:6px;background:rgba(15,184,168,.08);padding:4px 8px;border-radius:8px">${modeStr}</div>`:''}
+      </div>`;
+    }).join('') || '<div style="color:var(--textdim);font-size:13px;padding:12px">Aucun utilisateur.</div>';
+
+    // ── Progression détaillée par livre (الضياء) pour chaque utilisateur ──
+    try{
+      const progSnap = await getDocs(collection(db,'progress'));
+      const allProgress = progSnap.docs.map(d=>d.data());
+      const bookProgEl = document.getElementById('adm-book-progress');
+      if(bookProgEl){
+        bookProgEl.innerHTML = users.map(u=>{
+          const up = allProgress.find(p=>p.userId===u.id);
+          const data = up ? up.data || {} : {};
+          const catsHtml = BOOK_STRUCTURE.categories.map(cat=>{
+            const subsHtml = cat.subs.map(s=>{
+              const p = data[s.subKey] || {learnDone:false,writeDone:false,exprDone:false,quizDone:false,quizScore:0};
+              const needsExpr = subHasExpressions(s);
+              const complete = p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
+              const forced = p.forceUnlock;
+              const icon = forced===true?'🔓':forced===false?'🔒':complete?'✅':(p.learnDone||p.writeDone||p.quizDone)?'🟡':'⬜';
+              return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0">
+                <span>${icon}</span>
+                <span style="flex:1;color:var(--textmed)">${s.name}</span>
+                <span style="color:${p.learnDone?'var(--green)':'var(--textdim)'}">🧠</span>
+                <span style="color:${p.writeDone?'var(--green)':'var(--textdim)'}">✏️</span>
+                ${needsExpr?`<span style="color:${p.exprDone?'var(--green)':'var(--textdim)'}">💬</span>`:''}
+                <span style="color:${p.quizDone?'var(--green)':'var(--textdim)'}">❓${p.quizDone?' '+p.quizScore+'%':''}</span>
+                <button class="cr-btn" style="color:var(--teal);font-size:11px" onclick="adminSetForceUnlock('${u.id}','${s.subKey}',true)" title="Forcer déblocage">🔓</button>
+                <button class="cr-btn" style="color:var(--rose);font-size:11px" onclick="adminSetForceUnlock('${u.id}','${s.subKey}',false)" title="Forcer verrouillage">🔒</button>
+              </div>`;
+            }).join('');
+            return `<div style="margin-bottom:8px">
+              <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:3px">${cat.icon} ${cat.name}</div>
+              ${subsHtml}
+            </div>`;
+          }).join('');
+          return `<div class="adm-user-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div class="adm-user-name">👤 ${u.nom}
+                <span id="code-${u.id}" style="font-size:11px;color:var(--textdim);margin-left:6px;letter-spacing:2px">••••</span>
+                <button class="cr-btn" style="font-size:11px;padding:2px" onclick="toggleUserCode('${u.id}','${(u.id.split('__')[1]||'????')}')">👁</button>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="cr-btn" style="color:var(--rose);font-size:11px;border:1px solid rgba(244,63,94,.3);border-radius:8px;padding:3px 8px" onclick="adminResetUserProgress('${u.id}','${u.nom}')">🔄 Réinitialiser</button>
+                <button class="cr-btn" style="color:#fff;font-size:11px;border:1px solid var(--rose);background:rgba(244,63,94,.2);border-radius:8px;padding:3px 8px" onclick="adminDeleteUser('${u.id}','${u.nom}')">🗑 Supprimer</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:rgba(212,168,67,.06);border-radius:8px;padding:6px 10px">
+              <span style="font-size:11px;color:var(--textdim);flex:1">📅 Révision quotidienne</span>
+              <button class="cr-btn" style="font-size:11px;border:1px solid ${u.srsMandatory?'rgba(244,63,94,.4)':'rgba(255,255,255,.1)'};border-radius:8px;padding:3px 10px;color:${u.srsMandatory?'var(--rose)':'var(--textdim)'}" onclick="adminSetSrsMandatory('${u.id}', ${!u.srsMandatory})">${u.srsMandatory?'🔒 Obligatoire':'💡 Suggéré'}</button>
+            </div>
+            ${catsHtml}
+          </div>`;
+        }).join('') || '<div style="color:var(--textdim);font-size:13px;padding:12px">Aucune progression.</div>';
+      }
+    }catch(e){ console.warn('progress load error',e); }
+
+    // Render recent sessions — detailed
+    const sessList = document.getElementById('adm-session-list');
+    sessList.innerHTML = sessions.slice(0,50).map(s=>{
+      const modeLabel = {learn:'🧠 Apprent.',write:'✏️ Écriture',quiz:'❓ Quiz',revision:'🃏 Révision'}[s.mode]||s.mode;
+      const filterLabel = s.filter==='expr'?'💬 Expr.':s.filter==='mot'?'📝 Vocab.':'🌐 Tout';
+      const scoreStr = s.mode==='quiz'&&s.totalCards>0 ? `${s.score||0}/${s.totalCards} (${Math.round((s.score||0)/s.totalCards*100)}%)` : s.totalCards>0?s.totalCards+' cartes':'—';
+      const scoreColor = s.mode==='quiz'&&s.totalCards>0 ? (s.score/s.totalCards>=0.8?'var(--green)':s.score/s.totalCards>=0.5?'var(--gold)':'var(--rose)') : 'var(--teal2)';
+      const dur = (s.duration||0)>3600?Math.round(s.duration/3600)+'h':(s.duration||0)>60?Math.round(s.duration/60)+'min':(s.duration||0)+'s';
+      const date = s.date ? new Date(s.date).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : s.dateShort||'';
+      return `<div class="adm-sess-card">
+        <div class="adm-sess-left">
+          <div class="adm-sess-name">
+            <strong>${s.userName||'?'}</strong>
+            <span style="font-size:10px;color:var(--textdim);margin-left:6px">${date}</span>
+          </div>
+          <div class="adm-sess-detail">${modeLabel} · ${filterLabel} · ⏱ ${dur}</div>
+        </div>
+        <div class="adm-sess-score" style="color:${scoreColor}">${scoreStr}</div>
+      </div>`;
+    }).join('') || '<div style="color:var(--textdim);font-size:13px;padding:12px">Aucune session.</div>';
+
+  }catch(e){
+    console.error('loadAdminData error', e);
+    showToast('Erreur chargement données');
+  }
+}
+
+// ── EXPOSE FIREBASE DB ──
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{
+    // Expose db for admin
+    if(window._firebaseApp){
+      import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js').then(({getFirestore,collection,getDocs})=>{
+        window._getDocs = getDocs;
+        window._collection = collection;
+      });
+    }
+    checkFirstLaunch();
+    if(currentUser) updateHomeWelcome();
+  }, 1500);
+});
+
+</script>
+
+<!-- MODAL: USER LOGIN (first launch) -->
+<div class="overlay" id="modal-profile" style="align-items:center;justify-content:center">
+  <div class="mbox" style="border-radius:22px;max-width:340px;padding:28px 24px 32px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px">🌙</div>
+      <div style="font-family:'Amiri',serif;font-size:24px;color:var(--gold);margin-top:8px">مراجعة العربية</div>
+      <div style="font-size:13px;color:var(--textdim);margin-top:6px" id="profile-subtitle">Connecte-toi pour commencer.</div>
+    </div>
+    <input class="minput" id="profile-nom" placeholder="Ton prénom et nom" type="text" style="text-align:center;font-size:16px">
+    <input class="minput" id="profile-code" placeholder="Ton code personnel (4 chiffres)" type="tel" inputmode="numeric" maxlength="4" style="text-align:center;font-size:18px;letter-spacing:4px">
+    <div id="profile-error" style="display:none;color:var(--rose);font-size:12px;margin-bottom:8px;text-align:center"></div>
+    <button class="msave" style="width:100%;padding:14px;font-size:15px" onclick="loginOrCreateProfile()">Continuer ▶</button>
+    <div style="font-size:11px;color:var(--textdim);margin-top:10px;text-align:center">Nouveau ? Choisis un code à 4 chiffres, il te servira à te reconnecter sur n'importe quel appareil.</div>
+  </div>
+</div>
+
+<!-- MODAL: ADMIN LOGIN -->
+<div class="overlay" id="modal-admin-login" style="align-items:center;justify-content:center">
+  <div class="mbox" style="border-radius:22px;max-width:320px;padding:24px">
+    <div class="mtitle">🔐 Accès Administrateur</div>
+    <input class="minput" id="admin-pwd" type="password" placeholder="Mot de passe" style="text-align:center">
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-admin-login')">Annuler</button>
+      <button class="msave" onclick="checkAdminLogin()">Entrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE PENDING APPROVAL -->
+<div id="pg-pending" class="pg">
+  <div class="home-inner" style="justify-content:center;text-align:center">
+    <div class="moon" style="font-size:54px">⏳</div>
+    <div class="home-ar" style="font-size:32px">في الانتظار</div>
+    <div class="home-sub">Compte en attente de validation</div>
+    <div class="home-card" style="max-width:320px">
+      <p>Ton compte a été créé avec succès !<br><br>Ton enseignant doit valider ton inscription avant que tu puisses accéder à l'application.<br><br>Reviens un peu plus tard.</p>
+    </div>
+    <button class="btn-start" style="margin-top:16px" onclick="checkApprovalStatus()">🔄 Vérifier maintenant</button>
+  </div>
+</div>
+
+<!-- PAGE ADMIN DASHBOARD -->
+<div id="pg-admin" class="pg">
+  <div class="hdr">
+    <button class="ibtn" onclick="showHome();closeAdminPage()">🏠</button>
+    <span class="hdr-title">📊 Tableau de bord</span>
+    <button class="ibtn" onclick="loadAdminData()">🔄</button>
+  </div>
+  <div class="scroll padbot">
+    <div style="padding:14px 16px 6px;font-size:12px;color:var(--textdim)">Vue d'ensemble</div>
+    <div class="stats-row" style="padding:0 14px 12px">
+      <div class="sbox"><div class="sn" id="adm-users">0</div><div class="sl">Utilisateurs</div></div>
+      <div class="sbox"><div class="sn" id="adm-sessions">0</div><div class="sl">Sessions</div></div>
+      <div class="sbox"><div class="sn" id="adm-today">0</div><div class="sl">Aujourd'hui</div></div>
+    </div>
+    <div style="padding:0 14px 14px">
+      <button class="cat-all-btn" style="border-color:rgba(15,184,168,.4);color:var(--teal);width:calc(100% - 0px)" onclick="exportAppState()">📤 Exporter l'état de l'app</button>
+    </div>
+    <div style="padding:0 14px 6px;font-size:12px;color:var(--textdim)">⏳ Comptes en attente de validation</div>
+    <div id="adm-pending-list" style="padding:0 14px"></div>
+    <div style="padding:0 14px 6px;font-size:12px;color:var(--textdim)">Utilisateurs</div>
+    <div id="adm-user-list" style="padding:0 14px"></div>
+    <div style="padding:12px 14px 6px;font-size:12px;color:var(--textdim)">📗 Progression الضياء par élève</div>
+    <div id="adm-book-progress" style="padding:0 14px"></div>
+    <div style="padding:12px 14px 0;font-size:12px;color:var(--textdim)">Sessions récentes</div>
+    <div id="adm-session-list" style="padding:0 14px"></div>
+  </div>
+</div>
+</body>
+</html>
