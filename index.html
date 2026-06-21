@@ -1656,9 +1656,10 @@ function validateWrite(){
   const isArFront=(dir==='ar-langs'||(dir==='mix'&&sessIdx%2===0));
   const target=isArFront?w.ar:w.fr;
 
-  // Normalise : ignore diacritiques arabes, minuscules, espaces, apostrophes variantes
+  // Normalise : ignore diacritiques arabes, accents latins (e,a,c,etc.), minuscules, espaces, apostrophes variantes
   const norm=s=>s
-    .replace(/[ً-ٰٟۖ-ۜ۟-۪ۤۧۨ-ۭ]/g,'')
+    .replace(/[ً-ٰٟۖ-ۜ۟-۪ۤۧۨ-ۭ]/g,'')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/['''‘’ʼ]/g,"'")
     .toLowerCase().trim();
 
