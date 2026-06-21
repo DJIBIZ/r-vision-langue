@@ -692,13 +692,18 @@ window.addEventListener('load',async()=>{
   try{
     const {initializeApp}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js');
     const {getFirestore,collection,doc,setDoc,deleteDoc,onSnapshot}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js');
+    const {getAuth,signInWithEmailAndPassword,signOut}=await import('https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js');
     const app=initializeApp({apiKey:"AIzaSyDpeaWX9eA-uvSs0SJnjuGqHZVouQQGLmU",authDomain:"revision-langue.firebaseapp.com",projectId:"revision-langue",storageBucket:"revision-langue.firebasestorage.app",messagingSenderId:"36346332370",appId:"1:36346332370:web:68aa77494ca2795053d90b"});
     const db=getFirestore(app);
+    const auth=getAuth(app);
     fbSet=(col,id,data)=>setDoc(doc(db,col,id),data);
     fbDel=(col,id)=>deleteDoc(doc(db,col,id));
     window._db=db;
     window._fbSet=fbSet;
     window._firebaseApp=true;
+    window._auth=auth;
+    window._adminSignIn=()=>signInWithEmailAndPassword(auth,ADMIN_AUTH_EMAIL,ADMIN_AUTH_PWD);
+    window._adminSignOut=()=>signOut(auth).catch(()=>{});
     const seed=async(col,defs)=>{const u=onSnapshot(collection(db,col),s=>{u();if(s.empty)defs.forEach(d=>fbSet(col,d.id,d));});};
     seed('vocab',DEFAULT_VOCAB); seed('cats',DEFAULT_CATS);
     onSnapshot(collection(db,'vocab'),s=>{const d=s.docs.map(x=>x.data());if(d.length>0){vocab=d;saveLocal();renderAll();}setSyncBadge('ok');});
@@ -2170,6 +2175,7 @@ function confirmSwitchAccount(){
 // Déconnecte l'utilisateur actuel de CET appareil et ramène à l'écran de connexion.
 // Les données globales (vocab, cats, livres) restent intactes — seul le profil local est effacé.
 function logoutCurrentUser(){
+  if(window._adminSignOut) window._adminSignOut();
   localStorage.removeItem('userProfile');
   localStorage.removeItem('progress');
   localStorage.removeItem('srs');
@@ -2517,11 +2523,21 @@ async function endSessionTracking(finalScore, totalCards){
 }
 
 // ── ADMIN ──
-function checkAdminLogin(){
+const ADMIN_AUTH_EMAIL = 'admin@revision-langue.app';
+const ADMIN_AUTH_PWD = 'revision@r@b2026pourtous';
+
+async function checkAdminLogin(){
   const pwd = document.getElementById('admin-pwd').value;
   if(pwd === ADMIN_PWD){
-    closeModal('modal-admin-login');
     document.getElementById('admin-pwd').value = '';
+    try{
+      if(window._adminSignIn) await window._adminSignIn();
+    }catch(e){
+      console.warn('admin firebase auth error', e);
+      showToast('❌ Connexion sécurisée impossible, réessaie (vérifie ta connexion internet)');
+      return;
+    }
+    closeModal('modal-admin-login');
     openAdminPage();
   } else {
     showToast('❌ Mot de passe incorrect');
