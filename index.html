@@ -251,7 +251,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="mode-select">
         <div class="mode-opt learn" onclick="startMode('learn','mot')"><div class="micon">🧠</div><div><div class="mtitle">1. Apprendre — Vocabulaire</div><div class="mdesc">Toutes les cartes Ar→Fr et Fr→Ar</div></div></div>
         <div class="mode-opt ecriture" onclick="startMode('write','mot')"><div class="micon">✏️</div><div><div class="mtitle">2. Exercice d'écriture</div><div class="mdesc">Tous les mots, dans les deux sens</div></div></div>
-        <div class="mode-opt quiz" onclick="startMode('quiz','all')"><div class="micon">❓</div><div><div class="mtitle">3. Quiz final</div><div class="mdesc">80% minimum pour débloquer la suite</div></div></div>
         <div class="mode-opt learn" style="border-color:rgba(212,168,67,.3)" onclick="startMode('learn','expr')"><div class="micon">💬</div><div><div class="mtitle">Expressions (bonus)</div><div class="mdesc">Mémorisation des expressions</div></div></div>
         <div class="mode-opt rev" onclick="startMode('revision','all')"><div class="micon">🃏</div><div><div class="mtitle">Révision libre</div><div class="mdesc">Cartes à retourner, à ton rythme</div></div></div>
       </div>
@@ -824,13 +823,7 @@ function subHasExpressions(sub){
 
 function isSubComplete(subKey){
   const p = getSubProgress(subKey);
-  let sub = null;
-  for(const book of getAllBooks()){
-    sub = flatBookSubs(book).map(x=>x.sub).find(s=>s.subKey===subKey);
-    if(sub) break;
-  }
-  const needsExpr = subHasExpressions(sub);
-  return p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
+  return p.learnDone && p.writeDone;
 }
 
 // Renvoie la liste plate ordonnée de toutes les sous-catégories d'un livre donné (pour calcul séquentiel)
@@ -1131,8 +1124,7 @@ function renderSubcatsList(){
       <div class="bcat-badges">
         <span class="bcat-badge ${p.learnDone?'done':''}">🧠 Appr.</span>
         <span class="bcat-badge ${p.writeDone?'done':''}">✏️ Écriture</span>
-        ${hasExpr?`<span class="bcat-badge ${p.exprDone?'done':''}">💬 Expr.</span>`:''}
-        <span class="bcat-badge ${p.quizDone?'done':''}">❓ Quiz${p.quizScore?' '+p.quizScore+'%':''}</span>
+        ${hasExpr?`<span class="bcat-badge ${p.exprDone?'done':''}">💬 Expr. (bonus)</span>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1466,10 +1458,7 @@ function renderFlashcard(){
           setPhaseBanner('✏️ Phase 2 — Encore '+notWritten.length+' mot(s) à écrire','phase-write');
           showArea('write-area');renderWrite();return;
         }
-        sessPhase='quiz';sessIdx=0;
-        sessDeck=sessDeck.sort(()=>Math.random()-.5);
-        setPhaseBanner('❓ Phase 3 — Quiz final','phase-quiz');
-        showArea('quiz-area');renderQuiz();return;
+        showEnd();return;
       }
     } else if(sessMode==='write'){
       const notWritten=sessDeck.filter(w=>!w._written);
@@ -1602,12 +1591,6 @@ function nextCard(){
         showArea('write-area'); renderWrite(); return;
       }
       // Les deux sens sont faits
-      if(sessMode==='learn'){
-        sessPhase='quiz'; sessIdx=0;
-        sessDeck=sessPhaseFullDeck.slice().sort(()=>Math.random()-.5);
-        setPhaseBanner('❓ Phase 3 — Quiz final','phase-quiz');
-        showArea('quiz-area'); renderQuiz(); return;
-      }
       showEnd(); return;
     }
     showEnd(); return;
@@ -2668,16 +2651,15 @@ async function loadAdminData(){
         const subsHtml = cat.subs.map(s=>{
           const p = data[s.subKey] || {learnDone:false,writeDone:false,exprDone:false,quizDone:false,quizScore:0};
           const needsExpr = subHasExpressions(s);
-          const complete = p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
+          const complete = p.learnDone && p.writeDone;
           const forced = p.forceUnlock;
-          const icon = forced===true?'🔓':forced===false?'🔒':complete?'✅':(p.learnDone||p.writeDone||p.quizDone)?'🟡':'⬜';
+          const icon = forced===true?'🔓':forced===false?'🔒':complete?'✅':(p.learnDone||p.writeDone)?'🟡':'⬜';
           return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0">
             <span>${icon}</span>
             <span style="flex:1;color:var(--textmed)">${s.name}</span>
             <span style="color:${p.learnDone?'var(--green)':'var(--textdim)'}">🧠</span>
             <span style="color:${p.writeDone?'var(--green)':'var(--textdim)'}">✏️</span>
-            ${needsExpr?`<span style="color:${p.exprDone?'var(--green)':'var(--textdim)'}">💬</span>`:''}
-            <span style="color:${p.quizDone?'var(--green)':'var(--textdim)'}">❓${p.quizDone?' '+p.quizScore+'%':''}</span>
+            ${needsExpr?`<span style="color:${p.exprDone?'var(--green)':'var(--textdim)'}" title="Expressions (bonus, non bloquant)">💬</span>`:''}
             <button class="cr-btn" style="color:var(--teal);font-size:11px" onclick="event.stopPropagation();adminSetForceUnlock('${u.id}','${s.subKey}',true)" title="Forcer déblocage">🔓</button>
             <button class="cr-btn" style="color:var(--rose);font-size:11px" onclick="event.stopPropagation();adminSetForceUnlock('${u.id}','${s.subKey}',false)" title="Forcer verrouillage">🔒</button>
           </div>`;
