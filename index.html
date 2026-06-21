@@ -352,7 +352,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
   <div class="scroll padbot">
     <input class="vsearch" id="vsearch" type="text" placeholder="🔍 Rechercher..." oninput="renderVocab()">
-    <button class="vadd-btn" id="vadd-btn" onclick="openAddWord()">＋ Ajouter un mot</button>
+    <div style="display:flex;gap:8px">
+      <button class="vadd-btn" id="vadd-btn" onclick="openAddWord()" style="flex:1">＋ Ajouter un mot</button>
+      <button class="vadd-btn" id="vbulk-btn" onclick="openBulkImport()" style="flex:1;background:var(--teal)">📥 Import en masse</button>
+    </div>
     <div class="vlist" id="vlist"></div>
   </div>
 </div>
@@ -379,6 +382,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="mactions">
       <button class="mcancel" onclick="closeModal('modal-word')">Annuler</button>
       <button class="msave" id="w-save-btn" onclick="saveWord()">Enregistrer ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BULK IMPORT -->
+<div class="overlay" id="modal-bulk-import">
+  <div class="mbox">
+    <div class="mtitle">📥 Import en masse</div>
+    <select class="mselect" id="bi-cat" onchange="populateBiSubcatSelect()"></select>
+    <select class="mselect" id="bi-subcat"></select>
+    <select class="mselect" id="bi-type">
+      <option value="mot">📝 Mots</option>
+      <option value="expr">💬 Expressions</option>
+    </select>
+    <textarea id="bi-text" rows="8" style="width:100%;border-radius:10px;padding:10px;font-size:13px;margin:8px 0;background:var(--bg2);color:var(--text);border:1px solid rgba(255,255,255,.1)" placeholder="Une ligne par mot, format :
+arabe | français | anglais (optionnel)
+
+Exemple :
+خُنْفُساء | Scarabée | Beetle
+ذُبابة | Mouche | Fly"></textarea>
+    <div style="font-size:11px;color:var(--textdim);margin-bottom:8px">💡 Les doublons (même mot arabe dans la même leçon) sont automatiquement ignorés.</div>
+    <div class="mactions">
+      <button class="mcancel" onclick="closeModal('modal-bulk-import')">Annuler</button>
+      <button class="msave" onclick="bulkImportWords()">Importer ✓</button>
     </div>
   </div>
 </div>
@@ -1296,7 +1323,6 @@ function getDeck(){
   }
   let p=selCatIds.length?vocab.filter(w=>selCatIds.includes(w.cat)):[...vocab];
   if(selSubcat)p=p.filter(w=>w.sub===selSubcat);
-  if(!p.length)p=[...vocab];
   // Filtre vocabulaire ou expressions selon le mode choisi
   if(sessFilter==='mot')  p=p.filter(w=>w.type!=='expr');
   if(sessFilter==='expr') p=p.filter(w=>w.type==='expr');
@@ -1871,6 +1897,7 @@ function renderVocab(){
   const q=(document.getElementById('vsearch').value||'').toLowerCase();
   const admin=isAdminUser();
   document.getElementById('vadd-btn').style.display=admin?'':'none';
+  document.getElementById('vbulk-btn').style.display=admin?'':'none';
   const filtered=vocab.filter(w=>{
     if(currentTab==='expr'&&w.type!=='expr')return false;
     if(currentTab==='mots'&&w.type==='expr')return false;
@@ -1943,6 +1970,49 @@ function editWord(id){
 
 function populateCatSelect(){document.getElementById('w-cat').innerHTML=cats.map(c=>`<option value="${c.id}">${c.icon||'📂'} ${c.name}</option>`).join('');}
 function populateSubcatSelect(){const cat=cats.find(c=>c.id===document.getElementById('w-cat').value);const s=document.getElementById('w-subcat');if(!cat||!cat.subs||!cat.subs.length){s.innerHTML='<option value="">— Pas de sous-catégorie —</option>';}else{s.innerHTML='<option value="">— Aucune —</option>'+cat.subs.map(x=>`<option value="${x}">${x}</option>`).join('');}}
+
+// ── IMPORT EN MASSE ──
+function openBulkImport(){
+  document.getElementById('bi-cat').innerHTML=cats.map(c=>`<option value="${c.id}">${c.icon||'📂'} ${c.name}</option>`).join('');
+  populateBiSubcatSelect();
+  document.getElementById('bi-type').value='mot';
+  document.getElementById('bi-text').value='';
+  openModal('modal-bulk-import');
+}
+function populateBiSubcatSelect(){
+  const cat=cats.find(c=>c.id===document.getElementById('bi-cat').value);
+  const s=document.getElementById('bi-subcat');
+  if(!cat||!cat.subs||!cat.subs.length){s.innerHTML='<option value="">— Pas de sous-catégorie —</option>';}
+  else{s.innerHTML=cat.subs.map(x=>`<option value="${x}">${x}</option>`).join('');}
+}
+async function bulkImportWords(){
+  const cat=document.getElementById('bi-cat').value;
+  const sub=document.getElementById('bi-subcat').value;
+  const type=document.getElementById('bi-type').value;
+  const lines=document.getElementById('bi-text').value.split('\n').map(l=>l.trim()).filter(l=>l);
+  if(!cat){alert('Choisis une catégorie.');return;}
+  if(!lines.length){alert('Colle au moins une ligne à importer.');return;}
+  const existingAr=new Set(vocab.filter(w=>w.cat===cat&&w.sub===sub).map(w=>w.ar));
+  const newWords=[];
+  let added=0,skipped=0;
+  lines.forEach((line,i)=>{
+    const parts=line.split('|').map(p=>p.trim());
+    const ar=parts[0],fr=parts[1],en=parts[2];
+    if(!ar||!fr){skipped++;return;}
+    if(existingAr.has(ar)){skipped++;return;}
+    const w={id:'bi'+Date.now()+'_'+i,type,ar,fr,en:en||fr,pron:parts[3]||'',cat,sub};
+    newWords.push(w);
+    existingAr.add(ar);
+    added++;
+  });
+  for(const w of newWords){
+    vocab.push(w);
+    await syncSet('vocab',w.id,w);
+  }
+  closeModal('modal-bulk-import');
+  renderVocab();updateHomeStats();
+  showToast(`✅ ${added} ajouté(s) · ${skipped} ignoré(s) (doublon ou ligne incomplète)`);
+}
 
 async function saveWord(){
   const ar=document.getElementById('w-ar').value.trim();
