@@ -231,7 +231,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <!-- CATEGORIES + MODE SELECT -->
 <div id="pg-cats" class="pg">
-  <div class="hdr"><button class="ibtn" id="cats-back-btn" onclick="catsGoBack()">🏠</button><span class="hdr-title" id="cats-hdr-title">الكتب</span><button class="ibtn" onclick="openCatManager()">⚙️</button></div>
+  <div class="hdr"><button class="ibtn" id="cats-back-btn" onclick="catsGoBack()">🏠</button><span class="hdr-title" id="cats-hdr-title">الكتب</span><button class="ibtn" id="cat-settings-btn" onclick="openCatManager()">⚙️</button></div>
   <div class="scroll padbot">
     <div class="crumb-bar" id="crumb-bar" style="display:none"></div>
 
@@ -281,9 +281,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
   </div>
   <div class="dir-bar">
-    <div class="dpill on" id="dp-ar-langs" onclick="toggleDir('ar-langs')">🇸🇦 → 🇫🇷+🇬🇧</div>
-    <div class="dpill" id="dp-langs-ar" onclick="toggleDir('langs-ar')">🇫🇷+🇬🇧 → 🇸🇦</div>
-    <div class="dpill" id="dp-mix" onclick="toggleDir('mix')">🔀 Mix</div>
+    <div class="dpill on" id="dp-ar-langs">🇸🇦 → 🇫🇷+🇬🇧</div>
+    <div class="dpill" id="dp-langs-ar">🇫🇷+🇬🇧 → 🇸🇦</div>
   </div>
   <div class="progwrap"><div class="progbar" id="progbar" style="width:0%"></div></div>
   <div class="proglbl" id="proglbl">1 / 1</div>
@@ -805,7 +804,7 @@ function saveProgress(){
 
 async function syncUserProgress(){
   if(!window._fbSet || !currentUser) return;
-  try{ await window._fbSet('progress', currentUser.id, {userId:currentUser.id,userName:currentUser.nom,data:progress,updatedAt:new Date().toISOString()}); }catch(e){}
+  try{ await window._fbSet('progress', currentUser.id, {userId:currentUser.id,userName:currentUser.nom,data:progress,mastery:mastery,updatedAt:new Date().toISOString()}); }catch(e){}
 }
 
 function getSubProgress(subKey){
@@ -996,6 +995,7 @@ function renderCatsView(){
   renderCrumb();
   document.getElementById('cats-back-btn').textContent = navState.level==='books' ? '🏠' : '←';
   document.getElementById('cats-back-btn').onclick = navState.level==='books' ? showHome : catsGoBack;
+  document.getElementById('cat-settings-btn').style.display = isAdminUser() ? '' : 'none';
 
   if(navState.level==='books'){
     document.getElementById('cats-hdr-title').textContent='الكتب';
@@ -1295,6 +1295,7 @@ async function adminSetSrsMandatory(targetUserId, value){
 }
 
 let sessMode='revision',sessDirs=['ar-langs'],sessDeck=[],sessIdx=0,sessPhase='memo',sessScore=0,isFlipped=false,quizAnswered=false;
+let sessDirStage='ar-langs', sessPhaseFullDeck=[];
 
 function getDeck(){
   // Mode spécial : révision quotidienne SRS — deck = mots dus, toutes catégories confondues
@@ -1360,9 +1361,15 @@ function startMode(mode, filter){
   document.getElementById('bnav').classList.remove('on');showPg('session');
   const titles={learn:filter==='expr'?'Apprendre — Expressions':'Apprendre — Vocabulaire',write:'Exercice d\'écriture',quiz:'Quiz',revision:'Révision'};
   document.getElementById('sess-title').textContent=titles[mode]||'Session';
-  // Ensure sessDirs uses new direction values
-  sessDirs=sessDirs.map(d=>['ar-fr','ar-en'].includes(d)?'ar-langs':['fr-ar','en-ar'].includes(d)?'langs-ar':d);
-  if(!sessDirs.length) sessDirs=['ar-langs'];
+  if(mode==='learn'||mode==='write'){
+    sessDirStage='ar-langs';
+    sessDirs=['ar-langs'];
+    sessPhaseFullDeck=sessDeck.slice();
+  } else {
+    // Ensure sessDirs uses new direction values
+    sessDirs=sessDirs.map(d=>['ar-fr','ar-en'].includes(d)?'ar-langs':['fr-ar','en-ar'].includes(d)?'langs-ar':d);
+    if(!sessDirs.length) sessDirs=['ar-langs'];
+  }
   updateDirPills();
   startSessionTracking(mode, filter);
   initMuteBtn();
@@ -1542,44 +1549,66 @@ function nextCard(){
   saveSessionState();
   sessIdx++;
   if(sessIdx>=sessDeck.length){
-    if(sessMode==='learn'){
-      if(sessPhase==='memo'){
-        // Vérifie si tous les mots sont compris
-        const notUnderstood = sessDeck.filter(w=>!w._understood);
-        if(notUnderstood.length>0){
-          // Refaire uniquement les mots non compris
-          sessDeck=notUnderstood.map(w=>{w._understood=undefined;return w;}).sort(()=>Math.random()-.5);
-          sessIdx=0;
-          showToast('⚠️ '+notUnderstood.length+' mot(s) à revoir !');
-          setPhaseBanner('🧠 Phase 1 — Encore '+notUnderstood.length+' mot(s) à mémoriser','phase-memo');
-          showArea('flashcard-area'); renderFlashcard(); return;
-        }
-        // Tous compris → Phase 2 (écriture) sauf si expressions
-        const hasExpr = sessFilter==='expr';
-        if(hasExpr){
-          // Expressions : pas d'écriture, pas de quiz → fin directement
-          showEnd(); return;
-        }
-        sessPhase='write'; sessIdx=0;
-        sessDeck=sessDeck.sort(()=>Math.random()-.5).map(w=>{w._written=false;return w;});
-        setPhaseBanner('✏️ Phase 2 — Écris le mot demandé','phase-write');
+    if(sessMode==='learn' && sessPhase==='memo'){
+      // Vérifie si tous les mots sont compris
+      const notUnderstood = sessDeck.filter(w=>!w._understood);
+      if(notUnderstood.length>0){
+        // Refaire uniquement les mots non compris
+        sessDeck=notUnderstood.map(w=>{w._understood=undefined;return w;}).sort(()=>Math.random()-.5);
+        sessIdx=0;
+        showToast('⚠️ '+notUnderstood.length+' mot(s) à revoir !');
+        setPhaseBanner('🧠 Phase 1 — Encore '+notUnderstood.length+' mot(s) à mémoriser','phase-memo');
+        showArea('flashcard-area'); renderFlashcard(); return;
+      }
+      // Sens ar→langs terminé : bascule automatiquement sur l'autre sens
+      if(sessDirStage==='ar-langs'){
+        sessDirStage='langs-ar';
+        sessDirs=['langs-ar']; updateDirPills();
+        sessDeck=sessPhaseFullDeck.map(w=>{w._understood=undefined;return w;}).sort(()=>Math.random()-.5);
+        sessIdx=0;
+        showToast('↩️ Sens inversé : 🇫🇷+🇬🇧 → 🇸🇦');
+        setPhaseBanner('🧠 Phase 1 — Sens inverse 🇫🇷+🇬🇧 → 🇸🇦','phase-memo');
+        showArea('flashcard-area'); renderFlashcard(); return;
+      }
+      // Les deux sens sont faits → Phase 2 (écriture) sauf si expressions
+      const hasExpr = sessFilter==='expr';
+      if(hasExpr){
+        showEnd(); return;
+      }
+      sessPhase='write'; sessIdx=0;
+      sessDirStage='ar-langs'; sessDirs=['ar-langs']; updateDirPills();
+      sessPhaseFullDeck=sessPhaseFullDeck.map(w=>{w._written=false;return w;});
+      sessDeck=sessPhaseFullDeck.slice().sort(()=>Math.random()-.5);
+      setPhaseBanner('✏️ Phase 2 — Écris le mot demandé','phase-write');
+      showArea('write-area'); renderWrite(); return;
+    } else if(sessPhase==='write'){
+      // Vérifie si tous les mots sont écrits correctement
+      const notWritten = sessDeck.filter(w=>!w._written);
+      if(notWritten.length>0){
+        sessDeck=notWritten.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
+        sessIdx=0;
+        showToast('⚠️ '+notWritten.length+' mot(s) à réécrire !');
+        setPhaseBanner('✏️ Phase 2 — Encore '+notWritten.length+' mot(s) à écrire','phase-write');
         showArea('write-area'); renderWrite(); return;
-      } else if(sessPhase==='write'){
-        // Vérifie si tous les mots sont écrits correctement
-        const notWritten = sessDeck.filter(w=>!w._written);
-        if(notWritten.length>0){
-          sessDeck=notWritten.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
-          sessIdx=0;
-          showToast('⚠️ '+notWritten.length+' mot(s) à réécrire !');
-          setPhaseBanner('✏️ Phase 2 — Encore '+notWritten.length+' mot(s) à écrire','phase-write');
-          showArea('write-area'); renderWrite(); return;
-        }
-        // Tous écrits → Phase 3
+      }
+      // Sens ar→langs terminé : bascule automatiquement sur l'autre sens
+      if(sessDirStage==='ar-langs'){
+        sessDirStage='langs-ar';
+        sessDirs=['langs-ar']; updateDirPills();
+        sessDeck=sessPhaseFullDeck.map(w=>{w._written=false;return w;}).sort(()=>Math.random()-.5);
+        sessIdx=0;
+        showToast('↩️ Sens inversé : 🇫🇷+🇬🇧 → 🇸🇦');
+        setPhaseBanner('✏️ Phase 2 — Sens inverse 🇫🇷+🇬🇧 → 🇸🇦','phase-write');
+        showArea('write-area'); renderWrite(); return;
+      }
+      // Les deux sens sont faits
+      if(sessMode==='learn'){
         sessPhase='quiz'; sessIdx=0;
-        sessDeck=sessDeck.sort(()=>Math.random()-.5);
+        sessDeck=sessPhaseFullDeck.slice().sort(()=>Math.random()-.5);
         setPhaseBanner('❓ Phase 3 — Quiz final','phase-quiz');
         showArea('quiz-area'); renderQuiz(); return;
       }
+      showEnd(); return;
     }
     showEnd(); return;
   }
@@ -1856,13 +1885,15 @@ function speakWordAr(ar){speak(ar,'ar-SA');}
 // ══════════════════════════════════════
 function renderVocab(){
   const q=(document.getElementById('vsearch').value||'').toLowerCase();
+  const admin=isAdminUser();
+  document.getElementById('vadd-btn').style.display=admin?'':'none';
   const filtered=vocab.filter(w=>{
     if(currentTab==='expr'&&w.type!=='expr')return false;
     if(currentTab==='mots'&&w.type==='expr')return false;
     return!q||w.ar.includes(q)||w.fr.toLowerCase().includes(q)||(w.en&&w.en.toLowerCase().includes(q))||(w.pron&&w.pron.toLowerCase().includes(q));
   });
   const l=document.getElementById('vlist');
-  if(!filtered.length){l.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)">Aucun ${currentTab==='expr'?'expression':'mot'} trouvé.<br><br>Appuie sur ＋ pour en ajouter !</div>`;return;}
+  if(!filtered.length){l.innerHTML=`<div style="text-align:center;padding:40px;color:var(--textdim)">Aucun ${currentTab==='expr'?'expression':'mot'} trouvé.${admin?'<br><br>Appuie sur ＋ pour en ajouter !':''}</div>`;return;}
   l.innerHTML=filtered.map(w=>{
     const cat=cats.find(c=>c.id===w.cat);
     const arSafe=w.ar.replace(/"/g,'&quot;');
@@ -1878,8 +1909,8 @@ function renderVocab(){
       </div>
       <div class="v-btns">
         <button class="v-btn speak" onclick="speakWordAr(&quot;${arSafe}&quot;)">🔊</button>
-        <button class="v-btn edit" onclick="editWord('${w.id}')">✏️</button>
-        <button class="v-btn del" onclick="delWord('${w.id}')">🗑</button>
+        ${admin?`<button class="v-btn edit" onclick="editWord('${w.id}')">✏️</button>
+        <button class="v-btn del" onclick="delWord('${w.id}')">🗑</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -2231,6 +2262,7 @@ async function refreshCurrentUserFlags(){
         await loadUserProgressFromFirebase();
         await loadUserSrsFromFirebase();
         updateHomeWelcome();
+        updateHomeStats();
         showToast('🎉 Ton compte a été validé !');
       }
       updateDailyReviewBadge();
@@ -2289,6 +2321,7 @@ async function loginOrCreateProfile(){
         closeModal('modal-profile');
         document.getElementById('pg-pending').classList.remove('on');
         updateHomeWelcome();
+        updateHomeStats();
         updateDailyReviewBadge();
         if(isAdminUser()) addAdminButton();
         showToast('👋 Bon retour, '+currentUser.nom.split(' ')[0]+' !');
@@ -2346,6 +2379,7 @@ async function checkApprovalStatus(){
       await loadUserProgressFromFirebase();
       await loadUserSrsFromFirebase();
       updateHomeWelcome();
+      updateHomeStats();
       updateDailyReviewBadge();
       showToast('🎉 Ton compte a été validé !');
     } else {
@@ -2371,6 +2405,8 @@ async function loadUserProgressFromFirebase(){
     if(snap.exists()){
       progress = snap.data().data || {};
       localStorage.setItem('progress', JSON.stringify(progress));
+      mastery = snap.data().mastery || {};
+      localStorage.setItem('mastery', JSON.stringify(mastery));
     }
   }catch(e){ console.warn('loadUserProgressFromFirebase error', e); }
 }
@@ -2555,6 +2591,15 @@ function closeAdminPage(){
   document.getElementById('bnav').classList.remove('on');
 }
 
+function toggleAdminUserCard(safeId){
+  const body = document.getElementById('body-'+safeId);
+  const chev = document.getElementById('chev-'+safeId);
+  if(!body) return;
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if(chev) chev.style.transform = open ? 'rotate(0deg)' : 'rotate(90deg)';
+}
+
 async function loadAdminData(){
   if(!window._getDocs) return;
   try{
@@ -2593,7 +2638,14 @@ async function loadAdminData(){
     const todaySess = sessions.filter(s=>s.dateShort===today);
     document.getElementById('adm-today').textContent = todaySess.length;
 
-    // Render users — detailed
+    // ── Récupère la progression de tous les utilisateurs en amont (fusion avec les stats) ──
+    let allProgress = [];
+    try{
+      const progSnap = await getDocs(collection(db,'progress'));
+      allProgress = progSnap.docs.map(d=>d.data());
+    }catch(e){ console.warn('progress load error',e); }
+
+    // Render users — accordéon (1 carte par utilisateur, repliée par défaut)
     const userList = document.getElementById('adm-user-list');
     userList.innerHTML = users.sort((a,b)=>new Date(b.lastSeen||0)-new Date(a.lastSeen||0)).map(u=>{
       const userSess = sessions.filter(s=>s.userId===u.id);
@@ -2603,85 +2655,82 @@ async function loadAdminData(){
       const avgScore = quizSess.length ? Math.round(quizSess.reduce((a,s)=>a+s.score/s.totalCards*100,0)/quizSess.length) : null;
       const totalTime = userSess.reduce((a,s)=>a+(s.duration||0),0);
       const timeStr = totalTime>3600?Math.round(totalTime/3600)+'h':totalTime>60?Math.round(totalTime/60)+'min':totalTime+'s';
-      const todaySess = userSess.filter(s=>s.dateShort===new Date().toLocaleDateString('fr-FR'));
+      const todaySessU = userSess.filter(s=>s.dateShort===new Date().toLocaleDateString('fr-FR'));
       const modes = {};
       userSess.forEach(s=>{modes[s.mode]=(modes[s.mode]||0)+1;});
       const modeStr = Object.entries(modes).map(([m,n])=>({learn:'Apprent.',write:'Écriture',quiz:'Quiz',revision:'Révision'}[m]||m)+' x'+n).join(' · ');
       const isOnline = u.lastSeen && (Date.now()-new Date(u.lastSeen).getTime())<300000;
+
+      // Progression détaillée (livre الضياء)
+      const up = allProgress.find(p=>p.userId===u.id);
+      const data = up ? up.data || {} : {};
+      const catsHtml = BOOK_STRUCTURE.categories.map(cat=>{
+        const subsHtml = cat.subs.map(s=>{
+          const p = data[s.subKey] || {learnDone:false,writeDone:false,exprDone:false,quizDone:false,quizScore:0};
+          const needsExpr = subHasExpressions(s);
+          const complete = p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
+          const forced = p.forceUnlock;
+          const icon = forced===true?'🔓':forced===false?'🔒':complete?'✅':(p.learnDone||p.writeDone||p.quizDone)?'🟡':'⬜';
+          return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0">
+            <span>${icon}</span>
+            <span style="flex:1;color:var(--textmed)">${s.name}</span>
+            <span style="color:${p.learnDone?'var(--green)':'var(--textdim)'}">🧠</span>
+            <span style="color:${p.writeDone?'var(--green)':'var(--textdim)'}">✏️</span>
+            ${needsExpr?`<span style="color:${p.exprDone?'var(--green)':'var(--textdim)'}">💬</span>`:''}
+            <span style="color:${p.quizDone?'var(--green)':'var(--textdim)'}">❓${p.quizDone?' '+p.quizScore+'%':''}</span>
+            <button class="cr-btn" style="color:var(--teal);font-size:11px" onclick="event.stopPropagation();adminSetForceUnlock('${u.id}','${s.subKey}',true)" title="Forcer déblocage">🔓</button>
+            <button class="cr-btn" style="color:var(--rose);font-size:11px" onclick="event.stopPropagation();adminSetForceUnlock('${u.id}','${s.subKey}',false)" title="Forcer verrouillage">🔒</button>
+          </div>`;
+        }).join('');
+        return `<div style="margin-bottom:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:3px">${cat.icon} ${cat.name}</div>
+          ${subsHtml}
+        </div>`;
+      }).join('');
+
+      const safeId = u.id.replace(/[^a-zA-Z0-9_-]/g,'_');
       return `<div class="adm-user-card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-          <div>
-            <div class="adm-user-name">
-              ${isOnline?'🟢':'⚫'} ${u.nom}
-              <span class="adm-badge">${u.niveau||'?'}</span>
-              <span class="adm-badge" style="background:rgba(15,184,168,.12);color:var(--teal)">${u.device||'?'}</span>
+        <div style="cursor:pointer" onclick="toggleAdminUserCard('${safeId}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div>
+              <div class="adm-user-name">
+                <span id="chev-${safeId}" style="display:inline-block;transition:transform .15s">▸</span>
+                ${isOnline?'🟢':'⚫'} ${u.nom}
+                <span class="adm-badge">${u.niveau||'?'}</span>
+                <span class="adm-badge" style="background:rgba(15,184,168,.12);color:var(--teal)">${u.device||'?'}</span>
+              </div>
+              <div style="font-size:10px;color:var(--textdim);margin-top:2px">Inscrit le ${firstSeen}</div>
             </div>
-            <div style="font-size:10px;color:var(--textdim);margin-top:2px">Inscrit le ${firstSeen}</div>
+            ${avgScore!==null?`<div style="font-size:22px;font-weight:700;color:var(--gold)">${avgScore}%</div>`:''}
           </div>
-          ${avgScore!==null?`<div style="font-size:22px;font-weight:700;color:var(--gold)">${avgScore}%</div>`:''}
+          <div class="adm-user-meta">
+            <span>📚 ${userSess.length} session${userSess.length>1?'s':''}</span>
+            <span>⏱ ${timeStr} total</span>
+            <span>📅 ${todaySessU.length} aujourd'hui</span>
+            <span>🕐 ${lastSeen}</span>
+          </div>
+          ${modeStr?`<div style="font-size:10px;color:var(--teal);margin-top:6px;background:rgba(15,184,168,.08);padding:4px 8px;border-radius:8px">${modeStr}</div>`:''}
         </div>
-        <div class="adm-user-meta">
-          <span>📚 ${userSess.length} session${userSess.length>1?'s':''}</span>
-          <span>⏱ ${timeStr} total</span>
-          <span>📅 ${todaySess.length} aujourd'hui</span>
-          <span>🕐 ${lastSeen}</span>
+        <div id="body-${safeId}" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="adm-user-name" style="font-size:12px">
+              <span id="code-${u.id}" style="font-size:11px;color:var(--textdim);margin-left:0;letter-spacing:2px">••••</span>
+              <button class="cr-btn" style="font-size:11px;padding:2px" onclick="event.stopPropagation();toggleUserCode('${u.id}','${(u.id.split('__')[1]||'????')}')">👁</button>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="cr-btn" style="color:var(--rose);font-size:11px;border:1px solid rgba(244,63,94,.3);border-radius:8px;padding:3px 8px" onclick="event.stopPropagation();adminResetUserProgress('${u.id}','${u.nom}')">🔄 Réinitialiser</button>
+              <button class="cr-btn" style="color:#fff;font-size:11px;border:1px solid var(--rose);background:rgba(244,63,94,.2);border-radius:8px;padding:3px 8px" onclick="event.stopPropagation();adminDeleteUser('${u.id}','${u.nom}')">🗑 Supprimer</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:rgba(212,168,67,.06);border-radius:8px;padding:6px 10px">
+            <span style="font-size:11px;color:var(--textdim);flex:1">📅 Révision quotidienne</span>
+            <button class="cr-btn" style="font-size:11px;border:1px solid ${u.srsMandatory?'rgba(244,63,94,.4)':'rgba(255,255,255,.1)'};border-radius:8px;padding:3px 10px;color:${u.srsMandatory?'var(--rose)':'var(--textdim)'}" onclick="event.stopPropagation();adminSetSrsMandatory('${u.id}', ${!u.srsMandatory})">${u.srsMandatory?'🔒 Obligatoire':'💡 Suggéré'}</button>
+          </div>
+          <div style="font-size:11px;color:var(--textdim);margin-bottom:4px">📗 Progression الضياء</div>
+          ${catsHtml}
         </div>
-        ${modeStr?`<div style="font-size:10px;color:var(--teal);margin-top:6px;background:rgba(15,184,168,.08);padding:4px 8px;border-radius:8px">${modeStr}</div>`:''}
       </div>`;
     }).join('') || '<div style="color:var(--textdim);font-size:13px;padding:12px">Aucun utilisateur.</div>';
-
-    // ── Progression détaillée par livre (الضياء) pour chaque utilisateur ──
-    try{
-      const progSnap = await getDocs(collection(db,'progress'));
-      const allProgress = progSnap.docs.map(d=>d.data());
-      const bookProgEl = document.getElementById('adm-book-progress');
-      if(bookProgEl){
-        bookProgEl.innerHTML = users.map(u=>{
-          const up = allProgress.find(p=>p.userId===u.id);
-          const data = up ? up.data || {} : {};
-          const catsHtml = BOOK_STRUCTURE.categories.map(cat=>{
-            const subsHtml = cat.subs.map(s=>{
-              const p = data[s.subKey] || {learnDone:false,writeDone:false,exprDone:false,quizDone:false,quizScore:0};
-              const needsExpr = subHasExpressions(s);
-              const complete = p.learnDone && p.writeDone && p.quizDone && (!needsExpr || p.exprDone);
-              const forced = p.forceUnlock;
-              const icon = forced===true?'🔓':forced===false?'🔒':complete?'✅':(p.learnDone||p.writeDone||p.quizDone)?'🟡':'⬜';
-              return `<div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:3px 0">
-                <span>${icon}</span>
-                <span style="flex:1;color:var(--textmed)">${s.name}</span>
-                <span style="color:${p.learnDone?'var(--green)':'var(--textdim)'}">🧠</span>
-                <span style="color:${p.writeDone?'var(--green)':'var(--textdim)'}">✏️</span>
-                ${needsExpr?`<span style="color:${p.exprDone?'var(--green)':'var(--textdim)'}">💬</span>`:''}
-                <span style="color:${p.quizDone?'var(--green)':'var(--textdim)'}">❓${p.quizDone?' '+p.quizScore+'%':''}</span>
-                <button class="cr-btn" style="color:var(--teal);font-size:11px" onclick="adminSetForceUnlock('${u.id}','${s.subKey}',true)" title="Forcer déblocage">🔓</button>
-                <button class="cr-btn" style="color:var(--rose);font-size:11px" onclick="adminSetForceUnlock('${u.id}','${s.subKey}',false)" title="Forcer verrouillage">🔒</button>
-              </div>`;
-            }).join('');
-            return `<div style="margin-bottom:8px">
-              <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:3px">${cat.icon} ${cat.name}</div>
-              ${subsHtml}
-            </div>`;
-          }).join('');
-          return `<div class="adm-user-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <div class="adm-user-name">👤 ${u.nom}
-                <span id="code-${u.id}" style="font-size:11px;color:var(--textdim);margin-left:6px;letter-spacing:2px">••••</span>
-                <button class="cr-btn" style="font-size:11px;padding:2px" onclick="toggleUserCode('${u.id}','${(u.id.split('__')[1]||'????')}')">👁</button>
-              </div>
-              <div style="display:flex;gap:6px">
-                <button class="cr-btn" style="color:var(--rose);font-size:11px;border:1px solid rgba(244,63,94,.3);border-radius:8px;padding:3px 8px" onclick="adminResetUserProgress('${u.id}','${u.nom}')">🔄 Réinitialiser</button>
-                <button class="cr-btn" style="color:#fff;font-size:11px;border:1px solid var(--rose);background:rgba(244,63,94,.2);border-radius:8px;padding:3px 8px" onclick="adminDeleteUser('${u.id}','${u.nom}')">🗑 Supprimer</button>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:rgba(212,168,67,.06);border-radius:8px;padding:6px 10px">
-              <span style="font-size:11px;color:var(--textdim);flex:1">📅 Révision quotidienne</span>
-              <button class="cr-btn" style="font-size:11px;border:1px solid ${u.srsMandatory?'rgba(244,63,94,.4)':'rgba(255,255,255,.1)'};border-radius:8px;padding:3px 10px;color:${u.srsMandatory?'var(--rose)':'var(--textdim)'}" onclick="adminSetSrsMandatory('${u.id}', ${!u.srsMandatory})">${u.srsMandatory?'🔒 Obligatoire':'💡 Suggéré'}</button>
-            </div>
-            ${catsHtml}
-          </div>`;
-        }).join('') || '<div style="color:var(--textdim);font-size:13px;padding:12px">Aucune progression.</div>';
-      }
-    }catch(e){ console.warn('progress load error',e); }
 
     // Render recent sessions — detailed
     const sessList = document.getElementById('adm-session-list');
@@ -2787,10 +2836,8 @@ window.addEventListener('load', ()=>{
     </div>
     <div style="padding:0 14px 6px;font-size:12px;color:var(--textdim)">⏳ Comptes en attente de validation</div>
     <div id="adm-pending-list" style="padding:0 14px"></div>
-    <div style="padding:0 14px 6px;font-size:12px;color:var(--textdim)">Utilisateurs</div>
+    <div style="padding:0 14px 6px;font-size:12px;color:var(--textdim)">Utilisateurs (clique pour voir le détail)</div>
     <div id="adm-user-list" style="padding:0 14px"></div>
-    <div style="padding:12px 14px 6px;font-size:12px;color:var(--textdim)">📗 Progression الضياء par élève</div>
-    <div id="adm-book-progress" style="padding:0 14px"></div>
     <div style="padding:12px 14px 0;font-size:12px;color:var(--textdim)">Sessions récentes</div>
     <div id="adm-session-list" style="padding:0 14px"></div>
   </div>
