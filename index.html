@@ -2235,9 +2235,6 @@ function renderProgressSection(){
   }).join('');
 }
 
-// INIT
-updateHomeStats();
-
 // ══════════════════════════════════════
 // USER PROFILE & TRACKING
 // ══════════════════════════════════════
@@ -2248,6 +2245,9 @@ let currentSessionId = null;
 let sessionStartTime = null;
 let sessionWordsCount = 0;
 let sessionScore = 0;
+
+// INIT
+updateHomeStats();
 
 // Check first launch
 function confirmSwitchAccount(){
